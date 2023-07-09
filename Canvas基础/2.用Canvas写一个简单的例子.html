@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2.用Canvas写一个简单的例子</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        // 填充矩形
+        ctx.fillStyle = "rgb(200, 0, 0)";
+        ctx.fillRect(10, 10, 350, 300);
+
+        ctx.fillStyle = "rgb(0, 200, 0, 0.5)";
+        ctx.fillRect(30, 20, 350, 300);
+
+        // 描边矩形
+        ctx.strokeStyle = "rgb(200, 0, 0)";
+        ctx.strokeRect(400, 10, 350, 300);
+
+        ctx.strokeStyle = "rgb(0, 200, 0, 0.5)";
+        ctx.strokeRect(410, 20, 350, 300);
+      }
+    }
+    
+  </script>
+</body>
+</html>
