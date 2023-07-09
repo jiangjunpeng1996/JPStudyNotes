@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>6.用Canvas绘制圆形</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        /**
+         * 圆的组成：
+         * 圆心（x, y）
+         * 半径
+         * 开始角度
+         * 结束角度
+         * 顺时针/逆时针
+        */
+
+        ctx.strokeStyle = "orange";
+        // 画笔的宽度
+        ctx.lineWidth = 10;
+
+        // 开始画圆
+        // ctx.arc(x, y, radius, startAngle, endAngle, anticLockWise)
+        // 画半圆
+        // ctx.arc(400, 300, 150, 0, Math.PI, true); // true 逆时针 false 顺时针 默认为false
+        // 画正圆
+        ctx.arc(400, 300, 150, 0, Math.PI * 2, true);
+        ctx.stroke();
+      }
+    }
+    
+  </script>
+</body>
+</html>
