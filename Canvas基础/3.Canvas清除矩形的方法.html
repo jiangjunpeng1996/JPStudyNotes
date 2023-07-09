@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3.Canvas清除矩形的方法</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        /**
+         * 绘制一个填充的矩形
+         * fillRect(x, y, width, height)
+         * 
+         * 绘制一个描边的矩形
+         * strokeRect(x, y, width, height)
+         * 
+         * 清除指定矩形区域
+         * clearRect(x, y, width, height)
+        */
+
+        ctx.fillRect(25, 25, 100, 100);
+        ctx.clearRect(45, 45, 60, 60);
+        ctx.strokeRect(50, 50, 50, 50);
+
+        /**
+         * 以上三种方法都是用于绘制矩形
+        */
+      }
+    }
+    
+  </script>
+</body>
+</html>
