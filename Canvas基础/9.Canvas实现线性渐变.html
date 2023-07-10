@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>9.Canvas实现线性渐变</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        /**
+         * 线性渐变：
+         * 参数1：起点x1
+         * 参数2：起点y1
+         * 参数3：终点x2
+         * 参数4：终点y2
+        */
+
+        let linearGradient = ctx.createLinearGradient(0, 0, 0, 150);
+
+        /**
+         * addColorStop
+         * 参数1：必须是0.0 ~ 1.0之间的数值，数值表示颜色所在的相对位置
+         * 参数2：颜色值，可以为：white，#fff，#ffffff，rgb(255,255,255)，rgba(255,255,255,0.5)
+        */
+        linearGradient.addColorStop(0, "#cc6677");
+        linearGradient.addColorStop(0.5, "#fff");
+        linearGradient.addColorStop(0.5, "#c6c77b");
+        linearGradient.addColorStop(1, "#fff");
+
+        ctx.fillStyle = linearGradient;
+        ctx.fillRect(10, 10, 130, 130);
+
+        let linearGradient2 = ctx.createLinearGradient(0, 50, 0, 90);
+        linearGradient2.addColorStop(0.5, "#000");
+        linearGradient2.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+        ctx.strokeStyle = linearGradient2;
+        ctx.strokeRect(50, 50, 50, 50);
+      }
+    }
+    
+  </script>
+</body>
+</html>
