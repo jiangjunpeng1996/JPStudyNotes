@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>24.Canvas实现矩形的碰撞检测</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        function Rect(x, y, width, height, color, speed) {
+          this.x = x;
+          this.y = y;
+          this.width = width;
+          this.height = height;
+          this.color = color;
+          this.speed = speed;
+
+        }
+
+        Rect.prototype.draw = function() {
+          ctx.beginPath();
+          ctx.fillStyle = this.color;
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+          ctx.closePath();
+        }
+
+        Rect.prototype.move = function() {
+          this.x += this.speed;
+          if(this.x >= canvas.width - this.width) {
+            this.speed *= -1;
+          } else if(this.x < 0) {
+            this.speed *= -1;
+          }
+        }
+
+        // 创建两个矩形
+        let rect1 = new Rect(0, 100, 100, 100, "red", 2);
+        let rect2 = new Rect(700, 100, 100, 100, "blue", -2);
+
+        rect1.draw();
+        rect2.draw();
+
+        function animate() {
+          // 清除画布
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          rect1.draw();
+          rect2.draw();
+          rect1.move();
+          rect2.move();
+
+          // 碰撞检测
+          if(isRectHit(rect1, rect2)) {
+            rect1.speed *= -1
+            rect2.speed *= -1
+          }
+          window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        function isRectHit(rect1, rect2) {
+          // 获取矩形的最小x和最大x
+          let min1 = rect1.x;
+          let min2 = rect2.x;
+
+          let max1 = rect1.x + rect1.width;
+          let max2 = rect2.x + rect2.width;
+
+          let min3 = Math.max(min1, min2);
+          let max3 = Math.min(max1, max2);
+
+          if(min3 < max3) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+    }
+    
+  </script>
+</body>
+</html>
