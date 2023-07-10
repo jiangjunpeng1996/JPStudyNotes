@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>16.Canvas刮刮卡demo</title>
+  <style>
+    body, html {
+      margin: 0;
+    }
+
+    canvas {
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body onload="draw()">
+
+  <img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" alt="" srcset="">
+  <canvas id="canvas" width="540" height="258"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+        
+        ctx.beginPath();
+        ctx.fillStyle = "gray";
+        ctx.fillRect(0, 0, 540, 258);
+        // 设置要在绘制新形状时应用的合成操作的类型
+        ctx.globalCompositeOperation = "destination-out";
+        // 画笔的宽度
+        ctx.lineWidth = 20;
+        // 画笔的形状
+        ctx.lineCap = "round";
+        // 添加鼠标按下事件
+        canvas.onmousedown = function(e) {
+          let event = e || window.event;
+          let x = event.clientX;
+          let y = event.clientY;
+          ctx.moveTo(x, y);
+          // 添加鼠标移动事件
+          canvas.onmousemove = function(e) {
+            let event = e || window.event;
+            let x= event.clientX;
+            let y = event.clientY;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+          };
+
+          // 添加鼠标抬起事件
+          canvas.onmouseup = function(e) {
+            canvas.onmousemove = "";
+          };
+        }
+      }
+    }
+    
+  </script>
+</body>
+</html>
