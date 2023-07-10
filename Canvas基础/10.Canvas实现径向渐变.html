@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10.Canvas实现径向渐变</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        /**
+         * 径向渐变：
+         * 参数1：x1轴     参数1和参数2代表第一个圆的圆心
+         * 参数2：y1轴
+         * 参数3：r1半径
+         * 参数4：x2轴     参数4和参数5代表第二个圆的圆心
+         * 参数5：y2轴
+         * 参数6：r2半径
+        */
+
+        let radialGradient = ctx.createRadialGradient(50, 50, 10, 50, 50, 30);
+        radialGradient.addColorStop(0, "#A7D30C");
+        radialGradient.addColorStop(0.9, "#019F62");
+        radialGradient.addColorStop(1, "rgba(1, 159, 98, 0)");
+        // 画图形
+        ctx.fillStyle = radialGradient;
+        ctx.fillRect(0, 0, 150, 150);
+
+        let radialGradient2 = ctx.createRadialGradient(105, 105, 20, 112, 120, 50);
+        radialGradient2.addColorStop(0, "#FF5F98");
+        radialGradient2.addColorStop(0.9, "#FF0188");
+        radialGradient2.addColorStop(1, "rgba(255, 1, 136, 0)");
+        
+        ctx.fillStyle = radialGradient2;
+        ctx.fillRect(0, 0, 150, 150);
+      }
+    }
+  </script>
+</body>
+</html>
