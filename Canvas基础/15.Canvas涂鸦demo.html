@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>15.Canvas涂鸦demo</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        // 添加鼠标按下事件
+        canvas.onmousedown = function(e) {
+          let event = e || window.event;
+          let x= event.clientX - canvas.offsetLeft;
+          let y = event.clientY - canvas.offsetTop;
+
+          ctx.strokeStyle = "green";
+          ctx.lineWidth = 10;
+
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+
+          // 添加鼠标移动事件
+          canvas.onmousemove = function(e) {
+            let event = e || window.event;
+            let x= event.clientX - canvas.offsetLeft;
+            let y = event.clientY - canvas.offsetTop;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+          };
+
+          // 添加鼠标抬起事件
+          canvas.onmouseup = function(e) {
+            canvas.onmousemove = "";
+          };
+        };
+      }
+    }
+    
+  </script>
+</body>
+</html>
