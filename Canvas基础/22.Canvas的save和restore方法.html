@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>22.Canvas的save和restore方法</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        ctx.beginPath();
+        ctx.fillStyle = "blue";
+        ctx.save();
+        ctx.fillRect(100, 100, 150, 150);
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.fillStyle = "red";
+        ctx.save();
+        ctx.fillRect(100, 300, 150, 150);
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.restore();
+        ctx.fillRect(350, 100, 150, 150);
+
+        ctx.beginPath();
+        ctx.restore();
+        ctx.fillRect(350, 300, 150, 150);
+      }
+    }
+    
+  </script>
+</body>
+</html>
