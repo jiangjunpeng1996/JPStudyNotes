@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>20.Canvas实现圆形碰撞反弹</title>
+  <style>
+    body, html {
+      margin: 0;
+    }
+
+    canvas {
+      border: 1px solid red;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        // 圆形碰撞反弹
+        function Ball(x, y, r, speedX, speedY, color) {
+          // 设置属性
+          this.x = x;
+          this.y = y;
+          this.r = r;
+          this.speedX = speedX;
+          this.speedY = speedY;
+          this.color = color;
+
+          // 设置方法
+          this.draw = function() {
+            ctx.beginPath();
+            ctx.fillStyle = this.color;
+            ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+            ctx.fill();
+          }
+
+          this.move = function() {
+            this.x += this.speedX;
+            if(this.x > canvas.width - this.r) {
+              this.speedX *= -1;
+            } else if(this.x < this.r) {
+              this.speedX *= -1;
+            }
+            this.y += this.speedY;
+            if(this.y > canvas.height - this.r) {
+              this.speedY *= -1;
+            } else if(this.y < this.r) {
+              this.speedY *= -1;
+            }
+          }
+        }
+
+        let ball = new Ball(100, 100, 50, 2, 2, "blue");
+        ball.draw();
+
+        function start() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ball.draw();
+          ball.move();
+          window.requestAnimationFrame(start);
+        }
+        start();
+      }
+    }
+    
+  </script>
+</body>
+</html>
