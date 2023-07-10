@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>21.Canvas实现水平背景移动</title>
+  <style>
+    body, html {
+      margin: 0;
+    }
+
+    canvas {
+      border: 1px solid red;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="2100" height="768"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        let x = 0;
+
+        // 水平背景移动
+        function backgroundMove() {
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(-x, 0);
+            ctx.drawImage(bgImage, 0, 0);
+            ctx.drawImage(bgImage, canvas.width, 0);
+
+            // 判断x的偏移量
+            x++;
+            if(x >= canvas.width) {
+                x = 0;
+            }
+            ctx.restore();
+            window.requestAnimationFrame(backgroundMove);
+        }
+
+        var bgImage = new Image();
+        bgImage.src = "https://ts1.cn.mm.bing.net/th/id/R-C.9b99eb7fb7ebccb760a43e417d231b09?rik=OlIXS1Ni2pSMEA&riu=http%3a%2f%2fi3.3conline.com%2fimages%2fpiclib%2f201202%2f20%2fbatch%2f1%2f126860%2f1329670312631gfca89s6db.jpg&ehk=NFdNEMJpI7HmlulAnCf6sQr3CpK8kSJ4XvICQYsrQdc%3d&risl=&pid=ImgRaw&r=0";
+        bgImage.onload = function() {
+            backgroundMove();
+        }
+      }
+    }
+    
+  </script>
+</body>
+</html>
