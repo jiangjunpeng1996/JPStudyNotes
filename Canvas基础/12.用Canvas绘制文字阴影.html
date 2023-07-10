@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12.用Canvas绘制文字阴影</title>
+  <style>
+    body {
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      box-shadow: 0 0 10px #333;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body onload="draw()">
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+
+    function draw() {
+      const canvas = document.getElementById("canvas");
+
+      if(canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+
+        ctx.shadowColor = "orange";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 20;
+        ctx.shadowOffsetY = 20;
+
+        let linearGradient = ctx.createLinearGradient(100, 200, 500, 200);
+        linearGradient.addColorStop(0.5, "#cc6677");
+        linearGradient.addColorStop(1, "#000");
+        
+        /**
+         * font-weight
+         * font-style
+         * font-size
+         * font-family
+        */
+        ctx.font = "bold italic 160px arial";
+        ctx.fillStyle = linearGradient;
+        ctx.fillText("Henry", 100, 200);
+      }
+    }
+  </script>
+</body>
+</html>
