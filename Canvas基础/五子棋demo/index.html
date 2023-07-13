@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>五子棋demo</title>
+    <style>
+      #canvas {
+        background: #e3cdb0;
+      }
+    </style>
+  </head>
+  <body onload="play()">
+    <canvas id="canvas" width="600" height="600"></canvas>
+  </body>
+
+  <script>
+    /**
+     * 五子棋实现思路：
+     * 1. 画出棋盘
+     * 2. 黑白琪切换着下，不能覆盖已下的坑位
+     * 3. 判断同个颜色棋子是否有五个相连，有的话就赢了
+     */
+    function play() {
+      // 获取画布队形
+      const canvas = document.getElementById("canvas");
+      // 建立一个二维渲染上下文
+      const context = canvas.getContext("2d");
+
+      // 绘制棋盘
+
+      // 水平，总共15条线
+      for (let i = 0; i < 15; i++) {
+        // 创建一个新的路径
+        context.beginPath();
+        // 把路径移动到画布中的指定点，参数x和y是开始坐标
+        context.moveTo(20, 20 + i * 40);
+        // 使用直线将开始坐标和结束坐标相连，参数x和y是结束坐标
+        context.lineTo(580, 20 + i * 40);
+        // 绘制已定义的路径
+        context.stroke();
+        // 创建从当前点回到起始点的路径
+        context.closePath();
+      }
+
+      // 垂直，总共15条线
+      for (let i = 0; i < 15; i++) {
+        // 创建一个新的路径
+        context.beginPath();
+        // 把路径移动到画布中的指定点，参数x和y是开始坐标
+        context.moveTo(20 + i * 40, 20);
+        // 使用直线将开始坐标和结束坐标相连，参数x和y是结束坐标
+        context.lineTo(20 + i * 40, 580);
+        // 绘制已定义的路径
+        context.stroke();
+        // 创建从当前点回到起始点的路径
+        context.closePath();
+      }
+
+      // 是否下黑棋
+      // 黑棋先走
+      let isBlack = true;
+
+      // 棋盘二维数组，长度为15，每个索引对应的初始化值都是0
+      let cheeks = [];
+      for (let i = 0; i < 15; i++) {
+        cheeks[i] = new Array(15).fill(0);
+      }
+
+      // 画布点击事件
+      canvas.onclick = function (e) {
+        const clientX = e.clientX;
+        const clientY = e.clientY;
+
+        // 对40进行取整，确保棋子落在交叉处
+        const x = Math.round((clientX - 20) / 40) * 40 + 20;
+        const y = Math.round((clientY - 20) / 40) * 40 + 20;
+
+        // cheeks二维数组的索引
+        const cheeksX = (x - 20) / 40;
+        const cheeksY = (y - 20) / 40;
+
+        // 对应元素不为0说明此地方已有棋，返回
+        if (cheeks[cheeksY][cheeksX]) return;
+
+        // 黑棋为1，白棋为2
+        cheeks[cheeksY][cheeksX] = isBlack ? 1 : 2;
+        context.beginPath();
+        // 画圆
+        context.arc(x, y, 20, 0, 2 * Math.PI);
+        // 判断下黑棋还是白棋
+        context.fillStyle = isBlack ? "black" : "white";
+        // 填充当前路径
+        context.fill();
+        // 创建从当前点回到起始点的路径
+        context.closePath();
+
+        // canvas画图是异步的，保证画出来再去检测输赢
+        setTimeout(() => {
+          if (isWin(cheeksX, cheeksY)) {
+            const con = confirm(`${isBlack ? "黑棋" : "白棋"}赢了！是否重新开局？`);
+            // 清除画布
+            context.clearRect(0, 0, 600, 600);
+            // 重新开始
+            con && play();
+          }
+          // 切换黑白
+          isBlack = !isBlack;
+        }, 0);
+      };
+      // 判断是否五连子
+      function isWin(x, y) {
+        const flag = isBlack ? 1 : 2;
+        // 上和下
+        if (up_down(x, y, flag)) {
+          return true;
+        }
+
+        // 左和右
+        if (left_right(x, y, flag)) {
+          return true;
+        }
+        // 左上和右下
+        if (lu_rd(x, y, flag)) {
+          return true;
+        }
+
+        // 右上和左下
+        if (ru_ld(x, y, flag)) {
+          return true;
+        }
+
+        return false;
+      }
+
+      function up_down(x, y, flag) {
+        let num = 1;
+        // 向上找
+        for (let i = 1; i < 5; i++) {
+          let tempY = y - i;
+          console.log(x, tempY);
+          if (tempY < 0 || cheeks[tempY][x] !== flag) break;
+          if (cheeks[tempY][x] === flag) num += 1;
+        }
+        // 向下找
+        for (let i = 1; i < 5; i++) {
+          let tempY = y + i;
+          console.log(x, tempY);
+          if (tempY > 14 || cheeks[tempY][x] !== flag) break;
+          if (cheeks[tempY][x] === flag) num += 1;
+        }
+        return num >= 5;
+      }
+
+      function left_right(x, y, flag) {
+        let num = 1;
+        // 向左找
+        for (let i = 1; i < 5; i++) {
+          let tempX = x - i;
+          if (tempX < 0 || cheeks[y][tempX] !== flag) break;
+          if (cheeks[y][tempX] === flag) num += 1;
+        }
+        // 向右找
+        for (let i = 1; i < 5; i++) {
+          let tempX = x + i;
+          if (tempX > 14 || cheeks[y][tempX] !== flag) break;
+          if (cheeks[y][tempX] === flag) num += 1;
+        }
+        return num >= 5;
+      }
+
+      function lu_rd(x, y, flag) {
+        let num = 1;
+        // 向左上找
+        for (let i = 1; i < 5; i++) {
+          let tempX = x - i;
+          let tempY = y - i;
+          if (tempX < 0 || tempY < 0 || cheeks[tempY][tempX] !== flag) break;
+          if (cheeks[tempY][tempX] === flag) num += 1;
+        }
+        // 向右下找
+        for (let i = 1; i < 5; i++) {
+          let tempX = x + i;
+          let tempY = y + i;
+          if (tempX > 14 || tempY > 14 || cheeks[tempY][tempX] !== flag) break;
+          if (cheeks[tempY][tempX] === flag) num += 1;
+        }
+
+        return num >= 5;
+      }
+
+      function ru_ld(x, y, flag) {
+        let num = 1;
+        // 向右上找
+        for (let i = 1; i < 5; i++) {
+          let tempX = x - i;
+          let tempY = y + i;
+          if (tempX < 0 || tempY > 14 || cheeks[tempY][tempX] !== flag) break;
+          if (cheeks[tempY][tempX] === flag) num += 1;
+        }
+        // 向左下找
+        for (let i = 1; i < 5; i++) {
+          let tempX = x + i;
+          let tempY = y - i;
+          if (tempX > 14 || tempY < 0 || cheeks[tempY][tempX] !== flag) break;
+          if (cheeks[tempY][tempX] === flag) num += 1;
+        }
+
+        return num >= 5;
+      }
+    }
+  </script>
+</html>
