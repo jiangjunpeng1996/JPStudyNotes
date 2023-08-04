@@ -15,11 +15,17 @@ const app = createApp(App)
 app.use(ElementPlus, {
   locale: zhCn, // element-plus国际化配置
 })
+
 // svg插件需要配置代码
 import 'virtual:svg-icons-register'
+
 // 引入自定义插件对象：注册整个项目全局组件
 import globalComponent from '@/components'
 // 安装自定义插件
 app.use(globalComponent)
+
+// 引入模板的全局样式
+import '@/styles/index.scss'
+
 // 将应用挂载到挂载点上
 app.mount('#app')
