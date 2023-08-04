@@ -27,5 +27,16 @@ app.use(globalComponent)
 // 引入模板的全局样式
 import '@/styles/index.scss'
 
+// 测试代码：测试mock接口能否使用
+import axios from 'axios'
+axios({
+  url: '/api/user/login',
+  method: 'post',
+  data: {
+    username: 'admin',
+    password: '123456',
+  },
+})
+
 // 将应用挂载到挂载点上
 app.mount('#app')
