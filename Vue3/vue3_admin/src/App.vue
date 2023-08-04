@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // 引入图标组件
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+console.log(import.meta.env)
 </script>
 
 <template>
