@@ -1,22 +1,12 @@
 <script setup lang="ts">
-// 引入图标组件
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
-console.log(import.meta.env)
+import SvgIcon from '@/components/SvgIcon/index.vue'
 </script>
 
 <template>
   <div>
-    <el-button type="primary" size="default" :icon="Plus">Primary</el-button>
-    <el-button type="success" size="default" :icon="Edit">Edit</el-button>
-    <el-button type="danger" size="default" :icon="Delete">Delete</el-button>
-    <el-pagination
-      :total="400"
-      :page-size="100"
-      :page-sizes="[10, 25, 50, 100]"
-      layout="total, sizes, prev, pager, next, jumper"
-    />
+    <h1>测试SVG图标使用</h1>
+    <svg-icon name="phone" width="100px" height="100px"></svg-icon>
   </div>
 </template>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>
