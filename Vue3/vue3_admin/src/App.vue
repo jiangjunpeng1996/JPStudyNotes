@@ -1,25 +1,19 @@
 <script setup lang="ts">
-import request from '@/utils/request'
 import { onMounted } from 'vue'
+import { reqLogin } from './api/user'
 
 // 当组建挂在完毕时测试发一个请求
 onMounted(() => {
-  request({
-    url: '/user/login',
-    method: 'POST',
-    data: {
-      username: 'admin',
-      password: '123456',
-    },
-  }).then((res) => {
-    console.log(res)
+  reqLogin({
+    username: 'admin',
+    password: '123456',
   })
 })
 </script>
 
 <template>
   <div>
-    <h1>测试axios二次封装</h1>
+    <h1>App根组件</h1>
   </div>
 </template>
 
