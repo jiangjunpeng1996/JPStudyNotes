@@ -14,16 +14,15 @@ export interface loginResponseData {
 }
 
 interface userInfo {
-  userId: number,
-  avatar: string,
-  username: string,
-  password: string,
-  desc: string,
-  roles: string[],
-  buttons: string[],
-  routes: string[],
+  userId: number
+  avatar: string
+  username: string
+  password: string
+  desc: string
+  roles: string[]
+  buttons: string[]
+  routes: string[]
   token: string
-
 }
 // 定义服务器返回用户信息相关的数据类型
 interface user {
