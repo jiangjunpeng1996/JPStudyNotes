@@ -1,9 +1,14 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+// 引入左侧菜单logo子组件
+import Logo from './logo/index.vue'
+</script>
 
 <template>
   <div class="layout_container">
     <!-- 左侧菜单 -->
-    <div class="layout_sidebar">1</div>
+    <div class="layout_sidebar">
+      <Logo></Logo>
+    </div>
     <!-- 顶部导航 -->
     <div class="layout_tabbar">2</div>
     <!-- 内容展示区域 -->
