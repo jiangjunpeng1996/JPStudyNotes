@@ -7,6 +7,8 @@ import { ElNotification } from 'element-plus'
 // 引入获取当前时间的函数
 import { getTime } from '@/utils/time'
 let userStore = useUserStore()
+// 获取el-form组件
+let loginForms = ref()
 // 获取路由器
 let $router = useRouter()
 // 定义变量控制按钮加载效果
@@ -18,6 +20,8 @@ let loginForm = reactive({
 })
 // 登录按钮回调
 const login = async () => {
+  // 保证全部表单项校验通过才去发请求
+  await loginForms.value.validate()
   // 加载效果：开始加载
   loading.value = true
   // 点击登录按钮以后要干什么？
@@ -47,6 +51,39 @@ const login = async () => {
     })
   }
 }
+
+// 定义表单校验需要的配置对象
+const rules = {
+  // 规则对象属性：
+  // required：代表这个字段务必要校验的
+  // min：文本长度至少多少位
+  // max：文本长度最多多少位
+  // message：错误的提示信息
+  // trigger：触发表单校验的时机，change->文本发生变化时触发校验，blur->失去焦点的时候出发校验规则
+  username: [
+    {
+      required: true,
+      message: '用户名不能为空',
+      trigger: 'blur',
+    },
+    {
+      required: true,
+      min: 6,
+      max: 10,
+      message: '账号长度至少6位，最多10位',
+      trigger: 'change',
+    },
+  ],
+  password: [
+    {
+      required: true,
+      min: 6,
+      max: 15,
+      message: '密码长度应在6～15位之间',
+      trigger: 'change',
+    },
+  ],
+}
 </script>
 
 <template>
@@ -54,16 +91,21 @@ const login = async () => {
     <el-row>
       <el-col :span="12" :xs="0"></el-col>
       <el-col :span="12" :xs="24">
-        <el-form class="login_form">
+        <el-form
+          class="login_form"
+          :model="loginForm"
+          :rules="rules"
+          ref="loginForms"
+        >
           <h1>Hello</h1>
           <h2>欢迎来到后台管理系统</h2>
-          <el-form-item>
+          <el-form-item prop="username">
             <el-input
               :prefix-icon="User"
               v-model="loginForm.username"
             ></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item prop="password">
             <el-input
               type="password"
               :prefix-icon="Lock"
