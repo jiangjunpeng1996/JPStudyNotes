@@ -1,9 +1,15 @@
 <script lang="ts" setup>
+import { useRouter, useRoute } from 'vue-router'
 // 获取layout小仓库
 import useLayoutSettingStore from '@/store/modules/setting'
 // 获取用户相关的小仓库
 import useUserStore from '@/store/modules/user'
 let layoutSettingStore = useLayoutSettingStore()
+let userStore = useUserStore()
+// 获取路由器对象
+const $router = useRouter()
+// 获取路由对象
+const $route = useRoute()
 // 刷新按钮点击回调
 const updateRefresh = () => {
   layoutSettingStore.refresh = !layoutSettingStore.refresh
@@ -21,7 +27,14 @@ const fullScreen = () => {
     document.exitFullscreen()
   }
 }
-let userStore = useUserStore()
+// 退出登录按钮点击回调
+const logout = () => {
+  // 1：需要向服务器发请求[退出登录接口]
+  // 2：仓库当中关于用户相关的数据需要清空[token | username | avatar]
+  userStore.userLogout()
+  // 3：跳转到登录页面
+  $router.push({ path: '/login', query: { redirect: $route.path } })
+}
 </script>
 
 <script lang="ts">
@@ -58,7 +71,7 @@ export default {
     </span>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item>退出登录</el-dropdown-item>
+        <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
