@@ -1,5 +1,11 @@
 <script lang="ts" setup></script>
 
+<script lang="ts">
+export default {
+  name: 'Setting',
+}
+</script>
+
 <template>
   <el-button size="small" icon="Refresh" circle></el-button>
   <el-button size="small" icon="FullScreen" circle></el-button>

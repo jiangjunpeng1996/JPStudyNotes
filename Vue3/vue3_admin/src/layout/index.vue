@@ -10,16 +10,27 @@ import Main from './main/index.vue'
 import Tabbar from './tabbar/index.vue'
 // 获取用户相关的小仓库
 import useUserStore from '@/store/modules/user'
+// 获取layout配置相关的小仓库
+import useLayoutSettingStore from '@/store/modules/setting'
+// 获取用户相关的小仓库
 let userStore = useUserStore()
+// 获取layout配置仓库
+let layoutSettingStore = useLayoutSettingStore()
 
 // 获取路由对象
 const $route = useRoute()
 </script>
 
+<script lang="ts">
+export default {
+  name: 'Layout',
+}
+</script>
+
 <template>
   <div class="layout_container">
     <!-- 左侧菜单 -->
-    <div class="layout_sidebar">
+    <div class="layout_sidebar" :class="{ fold: layoutSettingStore.fold }">
       <Logo></Logo>
       <!-- 展示菜单 -->
       <!-- 滚动组件 -->
@@ -31,18 +42,19 @@ const $route = useRoute()
           text-color="#fff"
           active-text-color="yellowgreen"
           :default-active="$route.path"
+          :collapse="layoutSettingStore.fold"
         >
           <Menu :menuList="userStore.menuRoutes"></Menu>
         </el-menu>
       </el-scrollbar>
     </div>
     <!-- 顶部导航 -->
-    <div class="layout_tabbar">
+    <div class="layout_tabbar" :class="{ fold: layoutSettingStore.fold }">
       <!-- layout组件的顶部导航tabbar -->
       <Tabbar></Tabbar>
     </div>
     <!-- 内容展示区域 -->
-    <div class="layout_main">
+    <div class="layout_main" :class="{ fold: layoutSettingStore.fold }">
       <Main></Main>
     </div>
   </div>
@@ -57,12 +69,16 @@ const $route = useRoute()
     width: $base-menu-width;
     height: 100vh;
     background: $base-menu-background;
+    transition: all 0.3s;
     .scrollbar {
       width: 100%;
       height: calc(100vh - $base-menu-logo-height);
       .el-menu {
         border-right: unset;
       }
+    }
+    &.fold {
+      width: $base-menu-min-width;
     }
   }
   .layout_tabbar {
@@ -71,6 +87,11 @@ const $route = useRoute()
     position: fixed;
     top: 0;
     left: $base-menu-width;
+    transition: all 0.3s;
+    &.fold {
+      width: calc(100vw - $base-menu-min-width);
+      left: $base-menu-min-width;
+    }
   }
   .layout_main {
     position: absolute;
@@ -81,6 +102,11 @@ const $route = useRoute()
     left: $base-menu-width;
     padding: 20px;
     overflow: auto;
+    transition: all 0.3s;
+    &.fold {
+      width: calc(100vw - $base-menu-min-width);
+      left: $base-menu-min-width;
+    }
   }
 }
 </style>

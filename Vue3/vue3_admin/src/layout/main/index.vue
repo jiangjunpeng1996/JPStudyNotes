@@ -1,5 +1,11 @@
 <script lang="ts" setup></script>
 
+<script lang="ts">
+export default {
+  name: 'Main',
+}
+</script>
+
 <template>
   <!-- 路由组件出口的位置 -->
   <router-view v-slot="{ Component }">
