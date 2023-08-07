@@ -6,6 +6,8 @@ const useLayoutSettingStore = defineStore('SettingStore', {
     return {
       // 用于控制菜单折叠还是收起
       fold: false,
+      // 用于控制刷新效果
+      refresh: false,
     }
   },
 })
