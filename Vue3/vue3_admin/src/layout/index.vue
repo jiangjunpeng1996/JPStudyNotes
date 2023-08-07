@@ -3,6 +3,8 @@
 import Logo from './logo/index.vue'
 // 引入菜单组件
 import Menu from './menu/index.vue'
+// 右侧内容展示区域
+import Main from './main/index.vue'
 // 获取用户相关的小仓库
 import useUserStore from '@/store/modules/user'
 let userStore = useUserStore()
@@ -27,7 +29,7 @@ let userStore = useUserStore()
     <div class="layout_tabbar">2</div>
     <!-- 内容展示区域 -->
     <div class="layout_main">
-      <p style="height: 100000px; background: red">我是一个段落</p>
+      <Main></Main>
     </div>
   </div>
 </template>
