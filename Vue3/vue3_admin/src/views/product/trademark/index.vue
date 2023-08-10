@@ -62,13 +62,17 @@ const sizeChange = () => {
 const addTrademark = () => {
   dialogFormVisible.value = true
   // 清空收集的数据
+  trademarkParams.id = 0
   trademarkParams.tmName = ''
   trademarkParams.logoUrl = ''
 }
 
 // 修改品牌按钮点击回调
-const updateTrademark = () => {
+const updateTrademark = (row: TradeMark) => {
+  // 对话框显示
   dialogFormVisible.value = true
+  // 展示已有品牌的数据，ES6合并对象
+  Object.assign(trademarkParams, row)
 }
 
 // 对话框底部取消按钮点击回调
@@ -79,22 +83,22 @@ const cancel = () => {
 // 对话框底部确定按钮点击回调
 const confirm = async () => {
   const result: any = await reqAddOrUpdateTrademark(trademarkParams)
-  // 添加品牌成功
+  // 添加/修改品牌成功
   if (result.code === 200) {
     // 关闭对话框
     dialogFormVisible.value = false
     // 弹出提示信息
     ElMessage({
       type: 'success',
-      message: '添加品牌成功',
+      message: trademarkParams.id ? '修改品牌成功' : '添加品牌成功',
     })
     // 再次发请求获取已有的全部品牌数据
-    getHasTrademark()
+    getHasTrademark(trademarkParams.id ? pageNo.value : 1)
   } else {
     // 添加品牌失败
     ElMessage({
       type: 'error',
-      message: '添加品牌失败',
+      message: trademarkParams.id ? '修改品牌失败' : '添加品牌失败',
     })
     // 关闭对话框
     dialogFormVisible.value = false
@@ -182,7 +186,7 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
               type="primary"
               size="small"
               icon="Edit"
-              @click="updateTrademark"
+              @click="updateTrademark(row)"
             ></el-button>
             <el-button type="primary" size="small" icon="Delete"></el-button>
           </template>
@@ -211,7 +215,10 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
 
     <!-- 对话框组件：在添加品牌与修改已有品牌的业务时使用 -->
     <!-- v-model：属性用于控制对话框的显示与隐藏的 true 显示 false 隐藏 -->
-    <el-dialog v-model="dialogFormVisible" title="添加品牌">
+    <el-dialog
+      v-model="dialogFormVisible"
+      :title="trademarkParams.id ? '修改品牌' : '添加品牌'"
+    >
       <el-form style="width: 80%">
         <el-form-item label="品牌名称" label-width="80px">
           <el-input
@@ -237,6 +244,7 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
               v-if="trademarkParams.logoUrl"
               :src="trademarkParams.logoUrl"
               class="avatar"
+              style="width: 100px; height: 100px"
             />
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
