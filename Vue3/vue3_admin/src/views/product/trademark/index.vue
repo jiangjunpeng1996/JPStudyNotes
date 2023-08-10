@@ -61,6 +61,9 @@ const sizeChange = () => {
 // 添加品牌按钮点击回调
 const addTrademark = () => {
   dialogFormVisible.value = true
+  // 清空收集的数据
+  trademarkParams.tmName = ''
+  trademarkParams.logoUrl = ''
 }
 
 // 修改品牌按钮点击回调
@@ -74,8 +77,28 @@ const cancel = () => {
 }
 
 // 对话框底部确定按钮点击回调
-const confirm = () => {
-  dialogFormVisible.value = false
+const confirm = async () => {
+  const result: any = await reqAddOrUpdateTrademark(trademarkParams)
+  // 添加品牌成功
+  if (result.code === 200) {
+    // 关闭对话框
+    dialogFormVisible.value = false
+    // 弹出提示信息
+    ElMessage({
+      type: 'success',
+      message: '添加品牌成功',
+    })
+    // 再次发请求获取已有的全部品牌数据
+    getHasTrademark()
+  } else {
+    // 添加品牌失败
+    ElMessage({
+      type: 'error',
+      message: '添加品牌失败',
+    })
+    // 关闭对话框
+    dialogFormVisible.value = false
+  }
 }
 
 // 上传图片组件-上传图片之前触发的钩子函数
@@ -146,7 +169,11 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
         <el-table-column label="品牌名称" prop="tmName"></el-table-column>
         <el-table-column label="品牌LOGO">
           <template #="{ row, $index }">
-            <img :src="row.logoUrl" alt="" style="width: 100px; height: 100px" />
+            <img
+              :src="row.logoUrl"
+              alt=""
+              style="width: 100px; height: 100px"
+            />
           </template>
         </el-table-column>
         <el-table-column label="品牌操作">
