@@ -12,7 +12,8 @@ let total = ref<number>(0)
 // 存储已有品牌的数据
 let trademarkArr = ref<Records>([])
 // 获取已有品牌的接口封装为一个函数，在任何情况下获取数据，调用此函数即可
-const getHasTrademark = async () => {
+const getHasTrademark = async (pager: number = 1) => {
+  pageNo.value = pager
   let result: TradeMarkResponseData = await reqHasTradeMark(
     pageNo.value,
     limit.value,
@@ -27,6 +28,20 @@ const getHasTrademark = async () => {
 onMounted(() => {
   getHasTrademark()
 })
+
+// 分页器当前页码发生变化的时候会触发
+// 对于当前页码发生变化自定义事件，组件pagination父组件回传了数据（当前的页码）
+// const changePageNo = () => {
+//   // 当前页码发生变化的时候再次发请求获取对应已有品牌数据展示
+//   getHasTrademark()
+// }
+
+// 当下拉菜单发生变化时会触发此方法
+// 这个自定义事件，分页器组件会将下拉菜单选中的数据返回
+const sizeChange = () => {
+  // 当前每一页的数据发生变化的时候，当前的页码归1
+  getHasTrademark()
+}
 </script>
 
 <template>
@@ -78,6 +93,8 @@ onMounted(() => {
       :background="true"
       :total="total"
       layout="prev, pager, next, jumper, ->, sizes, total"
+      @current-change="getHasTrademark"
+      @size-change="sizeChange"
     />
   </el-card>
 </template>
