@@ -30,7 +30,7 @@ export default {
 <template>
   <div class="layout_container">
     <!-- 左侧菜单 -->
-    <div class="layout_sidebar">
+    <div class="layout_sidebar" :class="{ fold: layoutSettingStore.fold }">
       <Logo></Logo>
       <!-- 展示菜单 -->
       <!-- 滚动组件 -->
@@ -76,6 +76,9 @@ export default {
       .el-menu {
         border-right: unset;
       }
+    }
+    &.fold {
+      width: $base-menu-min-width;
     }
   }
   .layout_tabbar {
