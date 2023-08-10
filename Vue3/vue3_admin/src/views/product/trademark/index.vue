@@ -1,10 +1,28 @@
 <script lang="ts" setup>
 // 引入组合式API函数ref
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { reqHasTradeMark } from '@/api/product/trademark'
 // 当前页码
 let pageNo = ref<number>(1)
 // 每一个展示多少条数据
 let limit = ref<number>(3)
+// 存储已有品牌数据总数
+let total = ref<number>(0)
+// 存储已有品牌的数据
+let trademarkArr = ref<any>([])
+// 获取已有品牌的接口封装为一个函数，在任何情况下获取数据，调用此函数即可
+const getHasTrademark = async () => {
+  let result = await reqHasTradeMark(pageNo.value, limit.value)
+  if (result.code === 200) {
+    // 存储已有品牌的总条数
+    total.value = result.data.total
+    trademarkArr.value = result.data.records
+  }
+}
+// 组件挂载完毕钩子，需要发一次请求，获取第一页数据
+onMounted(() => {
+  getHasTrademark()
+})
 </script>
 
 <template>
@@ -19,16 +37,26 @@ let limit = ref<number>(3)
         width：列的宽度
         align：列的对齐方式
      -->
-    <el-table style="margin: 10px 0" border>
+    <el-table style="margin: 10px 0" border :data="trademarkArr">
       <el-table-column
         label="序号"
         width="80px"
         align="center"
         type="index"
       ></el-table-column>
-      <el-table-column label="品牌名称"></el-table-column>
-      <el-table-column label="品牌LOGO"></el-table-column>
-      <el-table-column label="品牌操作"></el-table-column>
+      <!-- table-column：默认展示数据用div -->
+      <el-table-column label="品牌名称" prop="tmName"></el-table-column>
+      <el-table-column label="品牌LOGO">
+        <template #="{ row, $index }">
+          <img :src="row.logoUrl" alt="" style="width: 100px; height: 100px" />
+        </template>
+      </el-table-column>
+      <el-table-column label="品牌操作">
+        <template #="{ row, $index }">
+          <el-button type="primary" size="small" icon="Edit"></el-button>
+          <el-button type="primary" size="small" icon="Delete"></el-button>
+        </template>
+      </el-table-column>
     </el-table>
 
     <!-- 分页器组件
@@ -44,7 +72,7 @@ let limit = ref<number>(3)
       v-model:page-size="limit"
       :page-sizes="[3, 5, 7, 9]"
       :background="true"
-      :total="400"
+      :total="total"
       layout="prev, pager, next, jumper, ->, sizes, total"
     />
   </el-card>
