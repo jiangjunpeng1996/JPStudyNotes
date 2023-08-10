@@ -1,8 +1,16 @@
 <script lang="ts" setup>
 // 引入组合式API函数ref
-import { ref, onMounted } from 'vue'
-import { reqHasTradeMark } from '@/api/product/trademark'
-import type { Records, TradeMarkResponseData } from '@/api/product/trademark/type'
+import { ref, reactive, onMounted } from 'vue'
+import {
+  reqHasTradeMark,
+  reqAddOrUpdateTrademark,
+} from '@/api/product/trademark'
+import type {
+  Records,
+  TradeMarkResponseData,
+  TradeMark,
+} from '@/api/product/trademark/type'
+import { ElMessage, type UploadProps } from 'element-plus'
 // 当前页码
 let pageNo = ref<number>(1)
 // 每一个展示多少条数据
@@ -11,6 +19,13 @@ let limit = ref<number>(3)
 let total = ref<number>(0)
 // 存储已有品牌的数据
 let trademarkArr = ref<Records>([])
+// 定义手机新增品牌数据
+let trademarkParams = reactive<TradeMark>({
+  tmName: '',
+  logoUrl: '',
+})
+// 控制对话框的显示与隐藏
+let dialogFormVisible = ref<boolean>(false)
 // 获取已有品牌的接口封装为一个函数，在任何情况下获取数据，调用此函数即可
 const getHasTrademark = async (pager: number = 1) => {
   pageNo.value = pager
@@ -42,61 +57,195 @@ const sizeChange = () => {
   // 当前每一页的数据发生变化的时候，当前的页码归1
   getHasTrademark()
 }
+
+// 添加品牌按钮点击回调
+const addTrademark = () => {
+  dialogFormVisible.value = true
+}
+
+// 修改品牌按钮点击回调
+const updateTrademark = () => {
+  dialogFormVisible.value = true
+}
+
+// 对话框底部取消按钮点击回调
+const cancel = () => {
+  dialogFormVisible.value = false
+}
+
+// 对话框底部确定按钮点击回调
+const confirm = () => {
+  dialogFormVisible.value = false
+}
+
+// 上传图片组件-上传图片之前触发的钩子函数
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  // 这个钩子是在图片上传成功之前触发，上传文件之前可以约束文件的类型与大小
+  // 要求：上传文件格式png|jpg|jpeg|gif
+  if (
+    rawFile.type === 'image/png' ||
+    rawFile.type === 'image/jpg' ||
+    rawFile.type === 'image/jpeg' ||
+    rawFile.type === 'image/gif'
+  ) {
+    if (rawFile.size / 1024 / 1024 < 4) {
+      return true
+    } else {
+      ElMessage({
+        type: 'error',
+        message: '上传的文件大小应小于4M',
+      })
+    }
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '上传的文件类型必须是PNG|JPG|JPEG|GIF',
+    })
+    return false
+  }
+}
+
+// 图片上传成功的钩子
+const handleAvatarSuccess: UploadProps['onSuccess'] = (
+  response,
+  uploadFile,
+) => {
+  // response: 即为当前这次上传图片post请求服务器返回的数据
+  trademarkParams.logoUrl = response.data
+}
 </script>
 
 <template>
-  <el-card>
-    <!-- 卡片顶部添加品牌按钮 -->
-    <el-button type="primary" size="default" icon="Plus">添加品牌</el-button>
-    <!-- 表格组件：用于展示已有的数据 -->
-    <!-- table属性：
-      border: 可以设置表格纵向是否有边框
-      table-column属性：
-        label：列的标题
-        width：列的宽度
-        align：列的对齐方式
-     -->
-    <el-table style="margin: 10px 0" border :data="trademarkArr">
-      <el-table-column
-        label="序号"
-        width="80px"
-        align="center"
-        type="index"
-      ></el-table-column>
-      <!-- table-column：默认展示数据用div -->
-      <el-table-column label="品牌名称" prop="tmName"></el-table-column>
-      <el-table-column label="品牌LOGO">
-        <template #="{ row, $index }">
-          <img :src="row.logoUrl" alt="" style="width: 100px; height: 100px" />
-        </template>
-      </el-table-column>
-      <el-table-column label="品牌操作">
-        <template #="{ row, $index }">
-          <el-button type="primary" size="small" icon="Edit"></el-button>
-          <el-button type="primary" size="small" icon="Delete"></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+  <div>
+    <el-card>
+      <!-- 卡片顶部添加品牌按钮 -->
+      <el-button
+        type="primary"
+        size="default"
+        icon="Plus"
+        @click="addTrademark"
+      >
+        添加品牌
+      </el-button>
+      <!-- 表格组件：用于展示已有的数据 -->
+      <!-- table属性：
+        border: 可以设置表格纵向是否有边框
+        table-column属性：
+          label：列的标题
+          width：列的宽度
+          align：列的对齐方式
+      -->
+      <el-table style="margin: 10px 0" border :data="trademarkArr">
+        <el-table-column
+          label="序号"
+          width="80px"
+          align="center"
+          type="index"
+        ></el-table-column>
+        <!-- table-column：默认展示数据用div -->
+        <el-table-column label="品牌名称" prop="tmName"></el-table-column>
+        <el-table-column label="品牌LOGO">
+          <template #="{ row, $index }">
+            <img :src="row.logoUrl" alt="" style="width: 100px; height: 100px" />
+          </template>
+        </el-table-column>
+        <el-table-column label="品牌操作">
+          <template #="{ row, $index }">
+            <el-button
+              type="primary"
+              size="small"
+              icon="Edit"
+              @click="updateTrademark"
+            ></el-button>
+            <el-button type="primary" size="small" icon="Delete"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <!-- 分页器组件
-      属性：
-        v-model:current-page：设置分页器当前页码
-        v-model:page-size：设置每一个展示数据的条数
-        page-sizes：用于设置下拉菜单每页显示数据的条数
-        background：设置分页器按钮背景颜色
-        layout：可以设置分页器六个子组件布局调整
-     -->
-    <el-pagination
-      v-model:current-page="pageNo"
-      v-model:page-size="limit"
-      :page-sizes="[3, 5, 7, 9]"
-      :background="true"
-      :total="total"
-      layout="prev, pager, next, jumper, ->, sizes, total"
-      @current-change="getHasTrademark"
-      @size-change="sizeChange"
-    />
-  </el-card>
+      <!-- 分页器组件
+        属性：
+          v-model:current-page：设置分页器当前页码
+          v-model:page-size：设置每一个展示数据的条数
+          page-sizes：用于设置下拉菜单每页显示数据的条数
+          background：设置分页器按钮背景颜色
+          layout：可以设置分页器六个子组件布局调整
+      -->
+      <el-pagination
+        v-model:current-page="pageNo"
+        v-model:page-size="limit"
+        :page-sizes="[3, 5, 7, 9]"
+        :background="true"
+        :total="total"
+        layout="prev, pager, next, jumper, ->, sizes, total"
+        @current-change="getHasTrademark"
+        @size-change="sizeChange"
+      />
+    </el-card>
+
+    <!-- 对话框组件：在添加品牌与修改已有品牌的业务时使用 -->
+    <!-- v-model：属性用于控制对话框的显示与隐藏的 true 显示 false 隐藏 -->
+    <el-dialog v-model="dialogFormVisible" title="添加品牌">
+      <el-form style="width: 80%">
+        <el-form-item label="品牌名称" label-width="80px">
+          <el-input
+            placeholder="请输入品牌名称"
+            v-model="trademarkParams.tmName"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="品牌LOGO" label-width="80px">
+          <!-- el-upload属性：
+            action: 图片上传的服务器地址
+            show-file-list：是否显示已上传文件列表
+            before-upload: 上传图片之前触发的钩子函数，可以约束文件的类型与大小
+            on-success：图片上传成功的钩子
+           -->
+          <el-upload
+            class="avatar-uploader"
+            action="/api/admin/product/fileUpload"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img
+              v-if="trademarkParams.logoUrl"
+              :src="trademarkParams.logoUrl"
+              class="avatar"
+            />
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button type="primary" size="default" @click="cancel">
+          取消
+        </el-button>
+        <el-button type="primary" size="default" @click="confirm">
+          确定
+        </el-button>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style lang="scss">
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
+</style>
