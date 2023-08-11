@@ -3,16 +3,18 @@
 import { watch, ref, reactive } from 'vue'
 // 引入获取已有属性与属性值接口方法
 import { reqAttr, reqAddOrUpdateAttr } from '@/api/product/attr'
-import type { AttrResponseData, Attr } from '@/api/product/attr/type'
+import type { AttrResponseData, Attr, AttrValue } from '@/api/product/attr/type'
 // 引入分类相关的仓库
 import useCategoryStore from '@/store/modules/category'
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
 let categoryStore = useCategoryStore()
 // 存储已有的属性与属性值
 let attrArr = ref<Attr[]>([])
 // 定义card组件内容切换变量
 // scene: 0 显示table 1 展示添加与修改结构
 let scene = ref<number>(0)
+// 定义一个响应式数据，用于控制编辑模式与查看模式的切换
+let flag = ref<boolean>(true)
 // 收集新增的属性的数据
 let attrParams = reactive<Attr>({
   attrName: '', // 新增的属性的名字
@@ -69,6 +71,8 @@ const addAttrValue = () => {
   // 点击添加属性值按钮的时候，向数组添加一个属性值对象
   attrParams.attrValueList.push({
     valueName: '',
+    // 控制每一个属性值的编辑模式与查看模式的切换
+    flag: true,
   })
 }
 
@@ -90,6 +94,46 @@ const save = async () => {
       message: attrParams.id ? '修改失败' : '添加失败',
     })
   }
+}
+
+// 属性值表单元素失去焦点事件回调
+const toLook = (row: AttrValue, $index: number) => {
+  // 非法情况的判断
+  if (row.valueName.trim() === '') {
+    // 删除掉对应属性值为空的元素
+    attrParams.attrValueList.splice($index, 1)
+    ElMessage({
+      type: 'error',
+      message: '属性值不能为空',
+    })
+    return
+  }
+  // 非法情况二：属性值名称相同
+  const repeat = attrParams.attrValueList.find((item) => {
+    // 切记把当前失去焦点的属性值对象从当前数组剔除
+    if (item !== row) {
+      return item.valueName === row.valueName
+    }
+  })
+
+  if (repeat) {
+    // 将重复的属性值从数组当中干掉
+    attrParams.attrValueList.splice($index, 1)
+    ElMessage({
+      type: 'error',
+      message: '属性值不能重复',
+    })
+    return
+  }
+
+  // 相应的属性值对象的flag变为false，展示div
+  row.flag = false
+}
+
+// 属性值div点击事件
+const toEdit = (row: AttrValue) => {
+  // 相应的属性值对象的flag变为true，展示el-input
+  row.flag = true
 }
 </script>
 
@@ -183,12 +227,22 @@ const save = async () => {
               <el-input
                 placeholder="请输入属性值名称"
                 v-model="row.valueName"
+                v-if="row.flag"
+                size="small"
+                @blur="toLook(row, $index)"
               ></el-input>
+              <div v-else @click="toEdit(row)">{{ row.valueName }}</div>
             </template>
           </el-table-column>
           <el-table-column label="属性值操作"></el-table-column>
         </el-table>
-        <el-button type="primary" size="default" icon="Plus" @click="save">
+        <el-button
+          type="primary"
+          size="default"
+          icon="Plus"
+          @click="save"
+          :disabled="!attrParams.attrValueList.length"
+        >
           保存
         </el-button>
         <el-button type="primary" size="default" @click="cancel">
