@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 // 组合式API函数watch
-import { watch, ref } from 'vue'
+import { watch, ref, reactive } from 'vue'
 // 引入获取已有属性与属性值接口方法
-import { reqAttr } from '@/api/product/attr'
+import { reqAttr, reqAddOrUpdateAttr } from '@/api/product/attr'
 import type { AttrResponseData, Attr } from '@/api/product/attr/type'
 // 引入分类相关的仓库
 import useCategoryStore from '@/store/modules/category'
@@ -12,6 +12,13 @@ let attrArr = ref<Attr[]>([])
 // 定义card组件内容切换变量
 // scene: 0 显示table 1 展示添加与修改结构
 let scene = ref<number>(1)
+// 收集新增的属性的数据
+let attrParams = reactive<Attr>({
+  attrName: '', // 新增的属性的名字
+  attrValueList: [], // 新增的属性值数组
+  categoryId: '', // 三级分类的ID
+  categoryLevel: 3, // 代表的是三级分类
+})
 watch(
   () => categoryStore.c3Id,
   () => {
