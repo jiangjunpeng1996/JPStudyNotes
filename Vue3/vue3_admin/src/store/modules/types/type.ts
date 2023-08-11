@@ -11,5 +11,9 @@ export interface UserState {
 // 定义分类仓库state对象的ts类型
 export interface CategoryState {
   c1Id: number | string
+  c2Id: number | string
+  c3Id: number | string
   c1Arr: CategoryObj[]
+  c2Arr: CategoryObj[]
+  c3Arr: CategoryObj[]
 }
