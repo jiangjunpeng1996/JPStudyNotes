@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 // 组合式API函数watch
-import { watch, ref, reactive } from 'vue'
+import { watch, ref, reactive, nextTick } from 'vue'
 // 引入获取已有属性与属性值接口方法
 import { reqAttr, reqAddOrUpdateAttr } from '@/api/product/attr'
 import type { AttrResponseData, Attr, AttrValue } from '@/api/product/attr/type'
@@ -15,6 +15,8 @@ let attrArr = ref<Attr[]>([])
 let scene = ref<number>(0)
 // 定义一个响应式数据，用于控制编辑模式与查看模式的切换
 let flag = ref<boolean>(true)
+// 准备一个数组，将来存储对应的组件实例el-input
+let inputArr = ref<any>([])
 // 收集新增的属性的数据
 let attrParams = reactive<Attr>({
   attrName: '', // 新增的属性的名字
@@ -74,6 +76,9 @@ const addAttrValue = () => {
     // 控制每一个属性值的编辑模式与查看模式的切换
     flag: true,
   })
+  nextTick(() => {
+    inputArr.value[attrParams.attrValueList.length - 1].focus()
+  })
 }
 
 // 保存按钮的回调
@@ -131,9 +136,14 @@ const toLook = (row: AttrValue, $index: number) => {
 }
 
 // 属性值div点击事件
-const toEdit = (row: AttrValue) => {
+const toEdit = (row: AttrValue, $index: number) => {
   // 相应的属性值对象的flag变为true，展示el-input
   row.flag = true
+  // nextTick：响应式数据发生变化，获取更新的DOM（组件实例）
+  nextTick(() => {
+    console.log(inputArr.value[$index])
+    inputArr.value[$index].focus()
+  })
 }
 </script>
 
@@ -225,16 +235,26 @@ const toEdit = (row: AttrValue) => {
             <!-- row: 即为当前的属性值对象 -->
             <template #="{ row, $index }">
               <el-input
+                :ref="(vc: any) => (inputArr[$index] = vc)"
                 placeholder="请输入属性值名称"
                 v-model="row.valueName"
                 v-if="row.flag"
                 size="small"
                 @blur="toLook(row, $index)"
               ></el-input>
-              <div v-else @click="toEdit(row)">{{ row.valueName }}</div>
+              <div v-else @click="toEdit(row, $index)">{{ row.valueName }}</div>
             </template>
           </el-table-column>
-          <el-table-column label="属性值操作"></el-table-column>
+          <el-table-column label="属性值操作">
+            <template #="{ row, $index }">
+              <el-button
+                type="danger"
+                size="small"
+                icon="Delete"
+                @click="attrParams.attrValueList.splice($index, 1)"
+              ></el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <el-button
           type="primary"
@@ -242,6 +262,7 @@ const toEdit = (row: AttrValue) => {
           icon="Plus"
           @click="save"
           :disabled="!attrParams.attrValueList.length"
+
         >
           保存
         </el-button>
