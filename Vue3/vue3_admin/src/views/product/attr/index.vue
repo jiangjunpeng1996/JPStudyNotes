@@ -58,9 +58,12 @@ const addAttr = () => {
   scene.value = 1
 }
 // table表格修改已有属性按钮的回调
-const updateAttr = () => {
+const updateAttr = (row: Attr) => {
   // 切换为添加与修改属性的结构
   scene.value = 1
+  // 将已有的属性对象赋值给attrParams对象即可
+  // 这里必须要用深拷贝方法JSON.parse(JSON.stringify())
+  Object.assign(attrParams, JSON.parse(JSON.stringify(row)))
 }
 
 // 取消按钮的回调
@@ -187,11 +190,12 @@ const toEdit = (row: AttrValue, $index: number) => {
           </el-table-column>
           <el-table-column label="操作" width="120px">
             <template #="{ row, $index }">
+              <!-- 修改已有属性的按钮 -->
               <el-button
                 type="primary"
                 size="small"
                 icon="Edit"
-                @click="updateAttr"
+                @click="updateAttr(row)"
               ></el-button>
               <el-button type="danger" size="small" icon="Delete"></el-button>
             </template>
