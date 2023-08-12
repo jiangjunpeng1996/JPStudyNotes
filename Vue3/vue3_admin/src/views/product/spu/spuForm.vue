@@ -177,16 +177,42 @@ defineExpose({ initHasSpuData })
         添加属性值
       </el-button>
       <!-- table展示销售属性与属性值的地方 -->
-      <el-table border style="margin: 10px 0">
+      <el-table border style="margin: 10px 0" :data="saleAttr">
         <el-table-column
           label="序号"
           type="index"
           align="center"
           width="80px"
         ></el-table-column>
-        <el-table-column label="销售属性名字" width="120px"></el-table-column>
-        <el-table-column label="销售属性值"></el-table-column>
-        <el-table-column label="操作" width="120px"></el-table-column>
+        <el-table-column
+          label="销售属性名字"
+          width="120px"
+          prop="saleAttrName"
+        ></el-table-column>
+        <el-table-column label="销售属性值">
+          <template #="{ row, $index }">
+            <el-tag
+              v-for="item in row.spuSaleAttrValueList"
+              :key="row.id"
+              class="mx-1"
+              closable
+              style="margin: 0 5px"
+            >
+              {{ item.saleAttrValueName }}
+            </el-tag>
+            <el-button size="small" icon="Plus"></el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="120px">
+          <template #="{ row, $index }">
+            <el-button
+              type="danger"
+              size="small"
+              icon="Delete"
+              @click="saleAttr.splice($index, 1)"
+            ></el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-form-item>
     <el-form-item>
