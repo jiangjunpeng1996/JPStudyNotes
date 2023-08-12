@@ -30,8 +30,19 @@ let imgList = ref<SpuImg[]>([])
 let saleAttr = ref<SaleAttr[]>([])
 // 全部的销售属性
 let allSaleAttr = ref<HasSaleAttr[]>([])
+// 存储已有的SPU对象
+let spuParams = ref<SpuData>({
+  category3Id: '',
+  spuName: '',
+  description: '',
+  tmId: '',
+  spuImageList: [],
+  spuSaleAttrList: [],
+})
 // 子组件书写一个方法
 const initHasSpuData = async (spu: SpuData) => {
+  // 存储已有的SPU对象，将来在模板中展示
+  spuParams.value = spu
   // spu：即为副组件传递过来的已有的SPU对象
   // 获取全部品牌的数据
   const result: AllTradeMark = await reqAllTradeMark()
@@ -57,17 +68,27 @@ defineExpose({ initHasSpuData })
 <template>
   <el-form label-width="100px">
     <el-form-item label="SPU名称">
-      <el-input placeholder="请输入SPU名称"></el-input>
+      <el-input
+        placeholder="请输入SPU名称"
+        v-model="spuParams.spuName"
+      ></el-input>
     </el-form-item>
     <el-form-item label="SPU品牌">
-      <el-select>
-        <el-option label="华为"></el-option>
-        <el-option label="小米"></el-option>
-        <el-option label="苹果"></el-option>
+      <el-select v-model="spuParams.tmId">
+        <el-option
+          v-for="item in allTrademark"
+          :key="item.id"
+          :label="item.tmName"
+          :value="item.id"
+        ></el-option>
       </el-select>
     </el-form-item>
     <el-form-item label="SPU描述">
-      <el-input type="textarea" placeholder="请输入SPU描述"></el-input>
+      <el-input
+        type="textarea"
+        placeholder="请输入SPU描述"
+        v-model="spuParams.description"
+      ></el-input>
     </el-form-item>
     <el-form-item label="SPU照片">
       <el-upload
