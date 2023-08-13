@@ -20,6 +20,8 @@ let records = ref<Records>([])
 let total = ref<number>(0)
 // 获取子组件实例SpuForm
 let spu = ref<any>()
+// 获取子组件实例SkuForm
+let sku = ref<any>()
 // 监听三级分类ID变化
 watch(
   () => categoryStore.c3Id,
@@ -79,8 +81,11 @@ const updateSpu = (row: SpuData) => {
 }
 
 // 添加SKU按钮的回调
-const addSku = () => {
+const addSku = (row: SpuData) => {
+  // 点击添加SKU按钮切换场景为2
   scene.value = 2
+  // 调用子组件的方法初始化添加SKU的数据
+  sku.value.initSkuData(categoryStore.c1Id, categoryStore.c2Id, row)
 }
 </script>
 
@@ -122,7 +127,7 @@ const addSku = () => {
                 title="添加SKU"
                 size="small"
                 icon="Plus"
-                @click="addSku"
+                @click="addSku(row)"
               ></el-button>
               <el-button
                 type="primary"
@@ -165,7 +170,11 @@ const addSku = () => {
         ref="spu"
       ></SpuFrom>
       <!-- 添加SKU的子组件 -->
-      <SkuFrom v-show="scene === 2" @changeScene="changeScene"></SkuFrom>
+      <SkuFrom
+        v-show="scene === 2"
+        @changeScene="changeScene"
+        ref="sku"
+      ></SkuFrom>
     </el-card>
   </div>
 </template>
