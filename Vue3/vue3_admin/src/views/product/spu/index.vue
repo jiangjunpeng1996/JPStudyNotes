@@ -77,6 +77,11 @@ const updateSpu = (row: SpuData) => {
   // 调用子组件实例的方法，获取已有的SPU的数据
   spu.value.initHasSpuData(row)
 }
+
+// 添加SKU按钮的回调
+const addSku = () => {
+  scene.value = 2
+}
 </script>
 
 <template>
@@ -117,6 +122,7 @@ const updateSpu = (row: SpuData) => {
                 title="添加SKU"
                 size="small"
                 icon="Plus"
+                @click="addSku"
               ></el-button>
               <el-button
                 type="primary"
@@ -159,7 +165,7 @@ const updateSpu = (row: SpuData) => {
         ref="spu"
       ></SpuFrom>
       <!-- 添加SKU的子组件 -->
-      <SkuFrom v-show="scene === 2"></SkuFrom>
+      <SkuFrom v-show="scene === 2" @changeScene="changeScene"></SkuFrom>
     </el-card>
   </div>
 </template>
