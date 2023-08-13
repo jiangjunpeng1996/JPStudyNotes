@@ -59,6 +59,8 @@ const addSpu = () => {
 const changeScene = (num: number) => {
   // 子组件SpuForm点击取消，变为场景0，展示已有的SPU数据
   scene.value = num
+  // 再次获取全部的已有的SPU
+  getHasSpu()
 }
 
 // 修改已有的SPU的按钮点击回调
