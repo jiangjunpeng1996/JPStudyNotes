@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 // 引入请求相关的API
 import { reqAttr } from '@/api/product/attr'
-import { reqSpuImageList, reqSpuHasSaleAttr } from '@/api/product/spu'
-import { ref } from 'vue'
+import { reqSpuImageList, reqSpuHasSaleAttr, reqAddSku } from '@/api/product/spu'
+import { ref, reactive } from 'vue'
+import type { SkuData } from '@/api/product/spu/type'
 // 自定义事件的方法
 let $emit = defineEmits(['changeScene'])
 // 平台属性
@@ -11,6 +12,19 @@ let attrArr = ref<any>([])
 let saleArr = ref<any>([])
 // 照片墙数据
 let imgArr = ref<any>([])
+// 收集SKU的参数
+let skuParams = reactive<SkuData>({
+  category3Id: '',
+  spuId: '',
+  tmId: '',
+  skuName: '',
+  price: '',
+  weight: '',
+  skuDesc: '',
+  skuAttrValueList: [],
+  skuSaleAttrValueList: [],
+  skuDefaultImg: '',
+})
 
 // 取消按钮的回调
 const cancel = () => {
@@ -25,6 +39,10 @@ const initSkuData = async (
   c2Id: number | string,
   spu: any,
 ) => {
+  // 收集数据
+  skuParams.category3Id = spu.category3Id
+  skuParams.spuId = spu.id
+  skuParams.tmId = spu.tmId
   // 获取平台属性
   let result: any = await reqAttr(c1Id, c2Id, spu.category3Id)
   // 获取对应的销售属性
@@ -47,16 +65,31 @@ defineExpose({
 <template>
   <el-form label-width="100px">
     <el-form-item label="SKU名称">
-      <el-input placeholder="请输入SKU名称"></el-input>
+      <el-input
+        placeholder="请输入SKU名称"
+        v-model="skuParams.skuName"
+      ></el-input>
     </el-form-item>
     <el-form-item label="价格(元)">
-      <el-input placeholder="请输入价格(元)" type="number"></el-input>
+      <el-input
+        placeholder="请输入价格(元)"
+        type="number"
+        v-model="skuParams.price"
+      ></el-input>
     </el-form-item>
     <el-form-item label="重量(g)">
-      <el-input placeholder="请输入重量(g)" type="number"></el-input>
+      <el-input
+        placeholder="请输入重量(g)"
+        type="number"
+        v-model="skuParams.weight"
+      ></el-input>
     </el-form-item>
     <el-form-item label="SKU描述">
-      <el-input placeholder="请输入SKU描述" type="textarea"></el-input>
+      <el-input
+        placeholder="请输入SKU描述"
+        type="textarea"
+        v-model="skuParams.skuDesc"
+      ></el-input>
     </el-form-item>
     <el-form-item label="平台属性">
       <el-form :inline="true" label-width="80px">
