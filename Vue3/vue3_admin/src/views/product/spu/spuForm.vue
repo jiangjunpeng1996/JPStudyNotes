@@ -10,6 +10,7 @@ import type {
   SpuImg,
   SaleAttr,
   HasSaleAttr,
+  SaleAttrValue,
 } from '@/api/product/spu/type'
 import {
   reqAllTradeMark,
@@ -47,6 +48,7 @@ let dialogVisible = ref<boolean>(false)
 let dialogImageUrl = ref<string>('')
 // 存储还未选择的销售属性ID与属性值的名称
 let saleAttrIdAndValueName = ref<string>('')
+
 // 子组件书写一个方法
 const initHasSpuData = async (spu: SpuData) => {
   // 存储已有的SPU对象，将来在模板中展示
@@ -133,6 +135,46 @@ const addSaleAttr = () => {
   saleAttr.value.push(newSaleAttr)
   // 清空收集到数据
   saleAttrIdAndValueName.value = ''
+}
+
+// 属性值按钮的点击事件
+const toEdit = (row: SaleAttr) => {
+  // 点击按钮的时候，显示input组件
+  row.flag = true
+  row.saleAttrValue = ''
+}
+// 表单元素失去焦点的事件回调
+const toLook = (row: SaleAttr) => {
+  // 整理收集的属性ID与属性值的名字
+  const { baseSaleAttrId, saleAttrValue } = row
+  // 整理成服务器需要的属性值的形式
+  let newSaleAttrValue: SaleAttrValue = {
+    baseSaleAttrId,
+    saleAttrValueName: saleAttrValue as string,
+  }
+  // 非法情况判断
+  if (saleAttrValue?.trim() === '') {
+    ElMessage({
+      type: 'error',
+      message: '属性值不能为空',
+    })
+    return
+  }
+  // 判断属性值是否在数组当中存在
+  let repeat = row.spuSaleAttrValueList.find((item) => {
+    return item.saleAttrValueName === saleAttrValue
+  })
+  if (repeat) {
+    ElMessage({
+      type: 'error',
+      message: '属性值重复',
+    })
+    return
+  }
+  // 追加新的属性值的对象
+  row.spuSaleAttrValueList.push(newSaleAttrValue)
+  // 切换为查看模式
+  row.flag = false
 }
 // 对外暴露
 defineExpose({ initHasSpuData })
@@ -233,15 +275,30 @@ defineExpose({ initHasSpuData })
         <el-table-column label="销售属性值">
           <template #="{ row, $index }">
             <el-tag
-              v-for="item in row.spuSaleAttrValueList"
+              v-for="(item, index) in row.spuSaleAttrValueList"
               :key="row.id"
               class="mx-1"
               closable
               style="margin: 0 5px"
+              @close="row.spuSaleAttrValueList.splice(index, 1)"
             >
               {{ item.saleAttrValueName }}
             </el-tag>
-            <el-button size="small" icon="Plus"></el-button>
+            <el-input
+              v-if="row.flag"
+              placeholder="请输入属性值"
+              size="small"
+              style="width: 100px"
+              v-model="row.saleAttrValue"
+              @blur="toLook(row)"
+            ></el-input>
+            <el-button
+              v-else
+              type="primary"
+              size="small"
+              icon="Plus"
+              @click="toEdit(row)"
+            ></el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="120px">
