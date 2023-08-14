@@ -4,6 +4,7 @@ import { reqAttr } from '@/api/product/attr'
 import { reqSpuImageList, reqSpuHasSaleAttr, reqAddSku } from '@/api/product/spu'
 import { ref, reactive } from 'vue'
 import type { SkuData } from '@/api/product/spu/type'
+import { ElMessage } from 'element-plus'
 // 自定义事件的方法
 let $emit = defineEmits(['changeScene'])
 // 平台属性
@@ -25,6 +26,7 @@ let skuParams = reactive<SkuData>({
   skuSaleAttrValueList: [],
   skuDefaultImg: '',
 })
+let table = ref<any>()
 
 // 取消按钮的回调
 const cancel = () => {
@@ -56,6 +58,63 @@ const initSkuData = async (
   // 图片
   imgArr.value = result2.data
 }
+// 设置默认图片的方法回调
+const handler = (row: any) => {
+  // 点击的时候，全部的复选框不勾选
+  imgArr.value.forEach((item: any) => {
+    table.value.toggleRowSelection(item, false)
+  })
+  // 选中的时候复选框勾选
+  table.value.toggleRowSelection(row, true)
+  // 收集图片地址
+  skuParams.skuDefaultImg = row.imgUrl
+}
+
+// 保存按钮点击回调
+const save = async () => {
+  // 收集数据
+  // 平台属性
+  skuParams.skuAttrValueList = attrArr.value.reduce((prev: any, next: any) => {
+    if (next.attrIdAndValueId) {
+      let [attrId, valueId] = next.attrIdAndValueId.split(':')
+      prev.push({
+        attrId,
+        valueId,
+      })
+    }
+    return prev
+  }, [])
+  // 销售属性
+  skuParams.skuSaleAttrValueList = saleArr.value.reduce(
+    (prev: any, next: any) => {
+      if (next.saleIdAndValueId) {
+        let [saleAttrId, saleAttrValueId] = next.saleIdAndValueId.split(':')
+        prev.push({
+          saleAttrId,
+          saleAttrValueId,
+        })
+      }
+      return prev
+    },
+    [],
+  )
+  // 添加SKU的请求
+  let result = await reqAddSku(skuParams)
+  if (result.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: '添加SKU成功',
+    })
+    // 通知父组件切换场景为0
+    $emit('changeScene', { flag: 0, params: '' })
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '添加SKU失败',
+    })
+  }
+}
+
 // 对外暴露的方法
 defineExpose({
   initSkuData,
@@ -98,11 +157,12 @@ defineExpose({
           :key="item.id"
           :label="item.attrName"
         >
-          <el-select>
+          <el-select v-model="item.attrIdAndValueId">
             <el-option
               v-for="attrValue in item.attrValueList"
               :key="attrValue.id"
               :label="attrValue.valueName"
+              :value="`${item.id}:${attrValue.id}`"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -115,18 +175,19 @@ defineExpose({
           :key="item.id"
           :label="item.saleAttrName"
         >
-          <el-select>
+          <el-select v-model="item.saleIdAndValueId">
             <el-option
               v-for="saleAttrValue in item.spuSaleAttrValueList"
               :key="saleAttrValue.id"
               :label="saleAttrValue.saleAttrValueName"
+              :value="`${item.id}:${saleAttrValue.id}`"
             ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
     </el-form-item>
     <el-form-item label="图片名称">
-      <el-table border :data="imgArr">
+      <el-table border :data="imgArr" ref="table">
         <el-table-column
           type="selection"
           width="80px"
@@ -140,13 +201,15 @@ defineExpose({
         <el-table-column label="名称" prop="imgName"></el-table-column>
         <el-table-column label="操作">
           <template #="{ row, $index }">
-            <el-button type="primary" size="small">设置默认</el-button>
+            <el-button type="primary" size="small" @click="handler(row)">
+              设置默认
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" size="default">保存</el-button>
+      <el-button type="primary" size="default" @click="save">保存</el-button>
       <el-button type="primary" size="default" @click="cancel">取消</el-button>
     </el-form-item>
   </el-form>
