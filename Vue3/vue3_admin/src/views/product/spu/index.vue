@@ -1,7 +1,14 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-import { reqHasSpu, reqSkuList } from '@/api/product/spu'
-import type { HasSpuResponseData, Records, SpuData, SkuInfoData, SkuData } from '@/api/product/spu/type'
+import { ref, watch, onBeforeUnmount } from 'vue'
+import { reqHasSpu, reqSkuList, reqRemoveSpu } from '@/api/product/spu'
+import type {
+  HasSpuResponseData,
+  Records,
+  SpuData,
+  SkuInfoData,
+  SkuData,
+} from '@/api/product/spu/type'
+import { ElMessage } from 'element-plus'
 // 引入分类的仓库
 import useCategoryStore from '@/store/modules/category'
 // 引入相应的子组件
@@ -99,6 +106,29 @@ const findSku = async (row: SpuData) => {
     show.value = true
   }
 }
+
+// 删除已有的SPU按钮的回调
+const deleteSpu = async (row: SpuData) => {
+  let result: any = await reqRemoveSpu(row.id as number)
+
+  if (result.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: '删除成功',
+    })
+    getHasSpu(records.value.length > 1 ? pageNo.value : pageNo.value - 1)
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '删除失败',
+    })
+  }
+}
+
+// 路由组件销毁的时候，把仓库相关的数据清空
+onBeforeUnmount(() => {
+  categoryStore.$reset()
+})
 </script>
 
 <template>
@@ -156,12 +186,20 @@ const findSku = async (row: SpuData) => {
                 @click="findSku(row)"
               ></el-button>
 
-              <el-button
-                type="primary"
-                title="删除SPU"
-                size="small"
-                icon="Delete"
-              ></el-button>
+              <el-popconfirm
+                :title="`你确定删除${row.spuName}?`"
+                width="200px"
+                @confirm="deleteSpu(row)"
+              >
+                <template #reference>
+                  <el-button
+                    type="danger"
+                    icon="Delete"
+                    title="删除SPU"
+                    size="small"
+                  ></el-button>
+                </template>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
