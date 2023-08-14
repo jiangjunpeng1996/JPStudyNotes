@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
-import { reqSkuList } from '@/api/product/sku'
+import { reqSkuList, reqSaleSku, reqCancelSale } from '@/api/product/sku'
 import { SkuResponseData, SkuData } from '@/api/product/sku/type'
+import { ElMessage } from 'element-plus'
 // 分页器当前页码
 let pageNo = ref<number>(1)
 // 每一页展示几条数据
@@ -24,6 +25,31 @@ const getHasSku = async (pager = 1) => {
 // 分页器下拉菜单发生变化时触发
 const handler = () => {
   getHasSku()
+}
+
+// 商品上架与下架按钮点击回调
+const updateSale = async (row: SkuData) => {
+  // 如果当前的商品的isScale===1，说明当前的商品是上架状态->更新为下架状态
+  if (row.isSale === 1) {
+    await reqCancelSale(row.id as number)
+    ElMessage({
+      type: 'success',
+      message: '下架成功',
+    })
+    getHasSku(pageNo.value)
+  } else {
+    await reqSaleSku(row.id as number)
+    ElMessage({
+      type: 'success',
+      message: '上架成功',
+    })
+    getHasSku(pageNo.value)
+  }
+}
+
+// 更新已有的SKU
+const updateSku = () => {
+  ElMessage({ type: 'success', message: '程序员在努力的更新中...' })
 }
 </script>
 
@@ -69,8 +95,18 @@ const handler = () => {
       ></el-table-column>
       <el-table-column label="操作" width="250px" fixed="right">
         <template #="{ row, $index }">
-          <el-button type="primary" size="small" icon="Top"></el-button>
-          <el-button type="primary" size="small" icon="Edit"></el-button>
+          <el-button
+            type="primary"
+            size="small"
+            :icon="row.isSale === 1 ? 'Bottom' : 'Top'"
+            @click="updateSale(row)"
+          ></el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="Edit"
+            @click="updateSku"
+          ></el-button>
           <el-button type="primary" size="small" icon="InfoFilled"></el-button>
           <el-button type="primary" size="small" icon="Delete"></el-button>
         </template>

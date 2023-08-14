@@ -28,7 +28,7 @@ export interface SkuData {
   skuAttrValueList?: Attr[]
   skuSaleAttrValueList?: saleAttr[]
   skuDefaultImg?: string //sku图片地址
-  isSale?: number
+  isSale?: number // 控制商品的上架与下架
   id?: number
 }
 
