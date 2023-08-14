@@ -9,6 +9,8 @@ enum API {
   SALE_URL = '/admin/product/onSale/',
   // 商品下架
   CANCEL_SALE_URL = '/admin/product/cancelSale/',
+  // 获取商品详情
+  SKU_INFO_URL = '/admin/product/getSkuInfo/',
 }
 
 // 获取商品SKU的接口
@@ -24,4 +26,9 @@ export const reqSaleSku = (skuId: number) => {
 // 已有商品下架的请求
 export const reqCancelSale = (skuId: number) => {
   return request.get<any, any>(API.CANCEL_SALE_URL + skuId)
+}
+
+// 获取商品详情
+export const reqSkuInfo = (skuId: number) => {
+  return request.get<any, SkuInfoData>(API.SKU_INFO_URL + skuId)
 }
