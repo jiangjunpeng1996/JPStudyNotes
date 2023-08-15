@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, nextTick } from 'vue'
 import { reqUserInfo, reqAddOrUpdateUser } from '@/api/acl/user'
 import type { UserResponseData, Records, User } from '@/api/acl/user/type'
 import { ElMessage } from 'element-plus'
@@ -19,6 +19,8 @@ let userParams = reactive<User>({
   name: '',
   password: '',
 })
+// 获取form组件实例
+let formRef = ref<any>()
 // 组件挂载完毕
 onMounted(() => {
   getHasUser()
@@ -45,6 +47,13 @@ const addUser = () => {
     name: '',
     password: '',
   })
+  // nextTick：可以获取更新后的DOM
+  // 清除上一次的错误提示信息
+  nextTick(() => {
+    formRef.value.clearValidate('username')
+    formRef.value.clearValidate('name')
+    formRef.value.clearValidate('password')
+  })
 }
 // 更新已有的用户按钮的回调
 const updateUser = (row: User) => {
@@ -53,6 +62,8 @@ const updateUser = (row: User) => {
 }
 // 确定按钮时间回调
 const save = async () => {
+  // 点击保存按钮的时候，务必要保证表单全部符合条件再去发请求
+  await formRef.value.validate()
   let result: any = await reqAddOrUpdateUser(userParams)
   if (result.code === 200) {
     // 关闭抽屉组件
@@ -77,6 +88,40 @@ const save = async () => {
 const cancel = () => {
   // 关闭抽屉组件
   drawer.value = false
+}
+
+// 校验用户名字的回调函数
+const validatorUserName = (rule: any, value: any, callBack: any) => {
+  if (value.trim().length >= 5) {
+    callBack()
+  } else {
+    callBack(new Error('用户名字至少五位'))
+  }
+}
+// 校验用户昵称的回调函数
+const validatorName = (rule: any, value: any, callBack: any) => {
+  if (value.trim().length >= 5) {
+    callBack()
+  } else {
+    callBack(new Error('用户昵称至少五位'))
+  }
+}
+// 校验用户密码的回调函数
+const validatorPassword = (rule: any, value: any, callBack: any) => {
+  if (value.trim().length >= 5) {
+    callBack()
+  } else {
+    callBack(new Error('用户密码至少六位'))
+  }
+}
+// 表单校验的规则对象
+const rules = {
+  // 用户名字
+  username: [{ required: true, trigger: 'blur', validator: validatorUserName }],
+  // 用户昵称
+  name: [{ required: true, trigger: 'blur', validator: validatorName }],
+  // 用户密码
+  password: [{ required: true, trigger: 'blur', validator: validatorPassword }],
 }
 </script>
 
@@ -158,20 +203,20 @@ const cancel = () => {
       <h4>添加用户</h4>
     </template>
     <template #default>
-      <el-form>
-        <el-form-item label="用户姓名">
+      <el-form :model="userParams" :rules="rules" ref="formRef">
+        <el-form-item label="用户姓名" prop="username">
           <el-input
             placeholder="请输入用户姓名"
             v-model="userParams.username"
           ></el-input>
         </el-form-item>
-        <el-form-item label="用户昵称">
+        <el-form-item label="用户昵称" prop="name">
           <el-input
             placeholder="请输入用户昵称"
             v-model="userParams.name"
           ></el-input>
         </el-form-item>
-        <el-form-item label="用户密码">
+        <el-form-item label="用户密码" prop="password">
           <el-input
             placeholder="请输入用户密码"
             v-model="userParams.password"
