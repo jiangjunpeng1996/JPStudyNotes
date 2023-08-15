@@ -19,8 +19,12 @@ let userParams = reactive<User>({
   name: '',
   password: '',
 })
+// 定义响应式数据控制分配角色抽屉组件的展示与隐藏
+let drawer1 = ref<boolean>(false)
 // 获取form组件实例
 let formRef = ref<any>()
+let allRole = ref<string[]>(['销售', '前台', '财务', 'boss'])
+let userRole = ref<string[]>(['销售', '前台'])
 // 组件挂载完毕
 onMounted(() => {
   getHasUser()
@@ -78,8 +82,6 @@ const save = async () => {
       type: 'success',
       message: userParams.id ? '更新成功' : '添加成功',
     })
-    // 获取最新的全部账号的信息
-    getHasUser(userParams.id ? pageNo.value : 1)
     // 浏览器自动刷新一次
     window.location.reload()
   } else {
@@ -130,6 +132,31 @@ const rules = {
   name: [{ required: true, trigger: 'blur', validator: validatorName }],
   // 用户密码
   password: [{ required: true, trigger: 'blur', validator: validatorPassword }],
+}
+
+// 分配角色按钮点击回调
+const setRole = async (row: User) => {
+  drawer1.value = true
+  Object.assign(userParams, row)
+}
+
+// 是否全选
+let checkAll = ref<boolean>(false)
+// 设置不确定状态，仅负责样式控制
+let isIndeterminate = ref<boolean>(true)
+// 全选复选框的change事件
+const handleCheckAllChange = (val: boolean) => {
+  userRole.value = val ? allRole.value : []
+  isIndeterminate.value = false
+}
+// 底部的复选框change事件
+const handleCheckedUsersChange = (value: string[]) => {
+  // 已经勾选的这些项目的长度
+  const checkedCount = value.length
+  checkAll.value = checkedCount === allRole.value.length
+  // 顶部的复选框不确定的样式
+  isIndeterminate.value =
+    checkedCount > 0 && checkedCount < allRole.value.length
 }
 </script>
 
@@ -186,10 +213,22 @@ const rules = {
       ></el-table-column>
       <el-table-column label="操作" align="center" width="280px">
         <template #="{ row, $index }">
-          <el-button type="primary" size="small" icon="User">
+          <el-button
+            type="primary"
+            size="small"
+            icon="User"
+            @click="setRole(row)"
+          >
             分配角色
           </el-button>
-          <el-button type="primary" size="small" icon="Edit" @click="updateUser(row)">编辑</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="Edit"
+            @click="updateUser(row)"
+          >
+            编辑
+          </el-button>
           <el-button type="primary" size="small" icon="Delete">删除</el-button>
         </template>
       </el-table-column>
@@ -236,6 +275,44 @@ const rules = {
       <div style="flex: auto">
         <el-button @click="cancel">取消</el-button>
         <el-button type="primary" @click="save">确定</el-button>
+      </div>
+    </template>
+  </el-drawer>
+  <!-- 分配角色抽屉组件 -->
+  <el-drawer v-model="drawer1">
+    <template #header>
+      <h4>分配角色</h4>
+    </template>
+    <template #default>
+      <el-form>
+        <el-form-item label="用户姓名" prop="username">
+          <el-input v-model="userParams.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="职位列表">
+          <el-checkbox
+            v-model="checkAll"
+            :indeterminate="isIndeterminate"
+            @change="handleCheckAllChange"
+          >
+            全选
+          </el-checkbox>
+          <el-checkbox-group
+            v-model="userRole"
+            @change="handleCheckedUsersChange"
+          >
+            <el-checkbox
+              v-for="(role, index) in allRole"
+              :key="index"
+              :label="role"
+            ></el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+      </el-form>
+    </template>
+    <template #footer>
+      <div style="flex: auto">
+        <el-button>取消</el-button>
+        <el-button type="primary">确定</el-button>
       </div>
     </template>
   </el-drawer>
