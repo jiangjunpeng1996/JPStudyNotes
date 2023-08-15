@@ -43,6 +43,7 @@ const addUser = () => {
   // 显示抽屉组件
   drawer.value = true
   Object.assign(userParams, {
+    id: 0,
     username: '',
     name: '',
     password: '',
@@ -59,6 +60,11 @@ const addUser = () => {
 const updateUser = (row: User) => {
   // 显示抽屉组件
   drawer.value = true
+  Object.assign(userParams, row)
+  nextTick(() => {
+    formRef.value.clearValidate('username')
+    formRef.value.clearValidate('name')
+  })
 }
 // 确定按钮时间回调
 const save = async () => {
@@ -73,7 +79,9 @@ const save = async () => {
       message: userParams.id ? '更新成功' : '添加成功',
     })
     // 获取最新的全部账号的信息
-    getHasUser()
+    getHasUser(userParams.id ? pageNo.value : 1)
+    // 浏览器自动刷新一次
+    window.location.reload()
   } else {
     // 关闭抽屉组件
     drawer.value = false
@@ -200,7 +208,7 @@ const rules = {
   <!-- 抽屉组件：完成添加新的用户账号|更新已有的账号信息 -->
   <el-drawer v-model="drawer">
     <template #header>
-      <h4>添加用户</h4>
+      <h4>{{ userParams.id ? '更新用户' : '添加用户' }}</h4>
     </template>
     <template #default>
       <el-form :model="userParams" :rules="rules" ref="formRef">
@@ -216,7 +224,7 @@ const rules = {
             v-model="userParams.name"
           ></el-input>
         </el-form-item>
-        <el-form-item label="用户密码" prop="password">
+        <el-form-item label="用户密码" prop="password" v-if="!userParams.id">
           <el-input
             placeholder="请输入用户密码"
             v-model="userParams.password"
