@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
-import { reqUserInfo } from '@/api/acl/user'
+import { ref, onMounted, reactive } from 'vue'
+import { reqUserInfo, reqAddOrUpdateUser } from '@/api/acl/user'
 import type { UserResponseData, Records, User } from '@/api/acl/user/type'
+import { ElMessage } from 'element-plus'
 // 默认页码
 let pageNo = ref<number>(1)
 // 一页展示几条数据
@@ -12,6 +13,12 @@ let total = ref<number>(0)
 let userArr = ref<Records>([])
 // 定义响应式数据控制抽屉的展示与隐藏
 let drawer = ref<boolean>(false)
+// 收集用户信息的响应式数据
+let userParams = reactive<User>({
+  username: '',
+  name: '',
+  password: '',
+})
 // 组件挂载完毕
 onMounted(() => {
   getHasUser()
@@ -33,11 +40,43 @@ const handler = () => {
 const addUser = () => {
   // 显示抽屉组件
   drawer.value = true
+  Object.assign(userParams, {
+    username: '',
+    name: '',
+    password: '',
+  })
 }
 // 更新已有的用户按钮的回调
 const updateUser = (row: User) => {
   // 显示抽屉组件
   drawer.value = true
+}
+// 确定按钮时间回调
+const save = async () => {
+  let result: any = await reqAddOrUpdateUser(userParams)
+  if (result.code === 200) {
+    // 关闭抽屉组件
+    drawer.value = false
+    ElMessage({
+      type: 'success',
+      message: userParams.id ? '更新成功' : '添加成功',
+    })
+    // 获取最新的全部账号的信息
+    getHasUser()
+  } else {
+    // 关闭抽屉组件
+    drawer.value = false
+    ElMessage({
+      type: 'error',
+      message: userParams.id ? '更新失败' : '添加失败',
+    })
+  }
+}
+
+// 取消按钮的回调
+const cancel = () => {
+  // 关闭抽屉组件
+  drawer.value = false
 }
 </script>
 
@@ -54,7 +93,9 @@ const updateUser = (row: User) => {
     </el-form>
   </el-card>
   <el-card style="margin: 10px 0">
-    <el-button type="primary" size="default" @click="addUser">添加用户</el-button>
+    <el-button type="primary" size="default" @click="addUser">
+      添加用户
+    </el-button>
     <el-button type="danger" size="default">批量删除</el-button>
     <el-table style="margin: 10px 0" border :data="userArr">
       <el-table-column type="selection" align="center"></el-table-column>
@@ -119,20 +160,29 @@ const updateUser = (row: User) => {
     <template #default>
       <el-form>
         <el-form-item label="用户姓名">
-          <el-input placeholder="请输入用户姓名"></el-input>
+          <el-input
+            placeholder="请输入用户姓名"
+            v-model="userParams.username"
+          ></el-input>
         </el-form-item>
         <el-form-item label="用户昵称">
-          <el-input placeholder="请输入用户昵称"></el-input>
+          <el-input
+            placeholder="请输入用户昵称"
+            v-model="userParams.name"
+          ></el-input>
         </el-form-item>
         <el-form-item label="用户密码">
-          <el-input placeholder="请输入用户密码"></el-input>
+          <el-input
+            placeholder="请输入用户密码"
+            v-model="userParams.password"
+          ></el-input>
         </el-form-item>
       </el-form>
     </template>
     <template #footer>
       <div style="flex: auto">
-        <el-button>取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button @click="cancel">取消</el-button>
+        <el-button type="primary" @click="save">确定</el-button>
       </div>
     </template>
   </el-drawer>
