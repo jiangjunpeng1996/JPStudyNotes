@@ -17,6 +17,8 @@ import type {
   SetRoleData,
 } from '@/api/acl/user/type'
 import { ElMessage } from 'element-plus'
+import useLayoutSettingStore from '@/store/modules/setting'
+let settingStore = useLayoutSettingStore()
 // 默认页码
 let pageNo = ref<number>(1)
 // 一页展示几条数据
@@ -43,6 +45,8 @@ let allRole = ref<AllRole>([])
 let userRole = ref<AllRole>([])
 // 准备一个数组存储批量删除的用户的ID
 let selectIdArr = ref<User[]>([])
+// 收集用户输入的关键字
+let keyword = ref<string>('')
 // 组件挂载完毕
 onMounted(() => {
   getHasUser()
@@ -50,7 +54,11 @@ onMounted(() => {
 const getHasUser = async (pager = 1) => {
   // 收集当前页码
   pageNo.value = pager
-  let result: UserResponseData = await reqUserInfo(pageNo.value, pageSize.value)
+  let result: UserResponseData = await reqUserInfo(
+    pageNo.value,
+    pageSize.value,
+    keyword.value,
+  )
   if (result.code === 200) {
     total.value = result.data.total
     userArr.value = result.data.records
@@ -235,17 +243,37 @@ const deleteSelectUser = async () => {
     getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1)
   }
 }
+
+// 搜索按钮的回调
+const search = () => {
+  // 根据关键字获取相应的用户数据
+  getHasUser()
+  // 清空关键字
+  keyword.value = ''
+}
+
+// 重置按钮的回调
+const reset = () => {
+  settingStore.refresh = !settingStore.refresh
+}
 </script>
 
 <template>
   <el-card style="height: 80px">
     <el-form :inline="true" class="form">
       <el-form-item label="用户名:">
-        <el-input placeholder="请输入搜索用户名"></el-input>
+        <el-input placeholder="请输入搜索用户名" v-model="keyword"></el-input>
       </el-form-item>
       <el-form-item class="form_item">
-        <el-button type="primary" size="default">搜索</el-button>
-        <el-button type="primary" size="default">重置</el-button>
+        <el-button
+          type="primary"
+          size="default"
+          :disabled="keyword.length <= 0"
+          @click="search"
+        >
+          搜索
+        </el-button>
+        <el-button type="primary" size="default" @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
   </el-card>

@@ -25,9 +25,9 @@ enum API {
 }
 
 // 获取用户账号信息的接口
-export const reqUserInfo = (page: number, limit: number) => {
+export const reqUserInfo = (page: number, limit: number, username: string) => {
   return request.get<any, UserResponseData>(
-    API.ALL_USER_URL + `${page}/${limit}`,
+    API.ALL_USER_URL + `${page}/${limit}/?username=${username}`,
   )
 }
 
