@@ -1,12 +1,18 @@
 <script lang="ts" setup>
 import { ref, onMounted, reactive, nextTick } from 'vue'
-import { reqUserInfo, reqAddOrUpdateUser, reqAllRole } from '@/api/acl/user'
+import {
+  reqUserInfo,
+  reqAddOrUpdateUser,
+  reqAllRole,
+  reqSetUserRole,
+} from '@/api/acl/user'
 import type {
   UserResponseData,
   Records,
   User,
   AllRoleResponseData,
   AllRole,
+  SetRoleData,
 } from '@/api/acl/user/type'
 import { ElMessage } from 'element-plus'
 // 默认页码
@@ -176,6 +182,29 @@ const handleCheckedUsersChange = (value: string[]) => {
   isIndeterminate.value =
     checkedCount > 0 && checkedCount < allRole.value.length
 }
+
+// 分配角色确定按钮点击回调
+const confirmClick = async () => {
+  // 收集参数
+  let data: SetRoleData = {
+    userId: userParams.id as number,
+    roleIdList: userRole.value.map((item) => {
+      return item.id as number
+    }),
+  }
+  // 分配用户的职位
+  let result: any = await reqSetUserRole(data)
+  if (result.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: '分配职务成功',
+    })
+    // 关闭抽屉组件
+    drawer1.value = false
+    // 获取更新完毕用户的信息
+    getHasUser(pageNo.value)
+  }
+}
 </script>
 
 <template>
@@ -331,8 +360,8 @@ const handleCheckedUsersChange = (value: string[]) => {
     </template>
     <template #footer>
       <div style="flex: auto">
-        <el-button>取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button @click="drawer1 = false">取消</el-button>
+        <el-button type="primary" @click="confirmClick">确定</el-button>
       </div>
     </template>
   </el-drawer>
