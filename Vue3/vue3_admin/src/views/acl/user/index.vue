@@ -1,7 +1,13 @@
 <script lang="ts" setup>
 import { ref, onMounted, reactive, nextTick } from 'vue'
-import { reqUserInfo, reqAddOrUpdateUser } from '@/api/acl/user'
-import type { UserResponseData, Records, User } from '@/api/acl/user/type'
+import { reqUserInfo, reqAddOrUpdateUser, reqAllRole } from '@/api/acl/user'
+import type {
+  UserResponseData,
+  Records,
+  User,
+  AllRoleResponseData,
+  AllRole,
+} from '@/api/acl/user/type'
 import { ElMessage } from 'element-plus'
 // 默认页码
 let pageNo = ref<number>(1)
@@ -23,8 +29,10 @@ let userParams = reactive<User>({
 let drawer1 = ref<boolean>(false)
 // 获取form组件实例
 let formRef = ref<any>()
-let allRole = ref<string[]>(['销售', '前台', '财务', 'boss'])
-let userRole = ref<string[]>(['销售', '前台'])
+// 存储全部职位的数据
+let allRole = ref<AllRole>([])
+// 当前用户已有的职位
+let userRole = ref<AllRole>([])
 // 组件挂载完毕
 onMounted(() => {
   getHasUser()
@@ -136,15 +144,25 @@ const rules = {
 
 // 分配角色按钮点击回调
 const setRole = async (row: User) => {
-  drawer1.value = true
+  // 存储已有的用户信息
   Object.assign(userParams, row)
+  // 获取全部的职位的数据与当前用户已有的职位的数据
+  let result: AllRoleResponseData = await reqAllRole(userParams.id as number)
+  if (result.code === 200) {
+    // 存储全部的职位
+    allRole.value = result.data.allRolesList
+    // 存储当前用户已有的职位
+    userRole.value = result.data.assignRoles
+    // 显示抽屉组件
+    drawer1.value = true
+  }
 }
 
-// 是否全选
+// 收集顶部复选框全选数据
 let checkAll = ref<boolean>(false)
-// 设置不确定状态，仅负责样式控制
+// 控制顶部全选复选框不确定的样式
 let isIndeterminate = ref<boolean>(true)
-// 全选复选框的change事件
+// 顶部全选复选框的change事件
 const handleCheckAllChange = (val: boolean) => {
   userRole.value = val ? allRole.value : []
   isIndeterminate.value = false
@@ -304,7 +322,9 @@ const handleCheckedUsersChange = (value: string[]) => {
               v-for="(role, index) in allRole"
               :key="index"
               :label="role"
-            ></el-checkbox>
+            >
+              {{ role.roleName }}
+            </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
