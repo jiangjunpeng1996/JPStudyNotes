@@ -5,6 +5,8 @@ import {
   reqAddOrUpdateUser,
   reqAllRole,
   reqSetUserRole,
+  reqRemoveUser,
+  reqSelectUser,
 } from '@/api/acl/user'
 import type {
   UserResponseData,
@@ -39,6 +41,8 @@ let formRef = ref<any>()
 let allRole = ref<AllRole>([])
 // 当前用户已有的职位
 let userRole = ref<AllRole>([])
+// 准备一个数组存储批量删除的用户的ID
+let selectIdArr = ref<User[]>([])
 // 组件挂载完毕
 onMounted(() => {
   getHasUser()
@@ -205,6 +209,32 @@ const confirmClick = async () => {
     getHasUser(pageNo.value)
   }
 }
+
+// 删除某一个用户
+const deleteUser = async (userId: number) => {
+  let result: any = await reqRemoveUser(userId)
+  if (result.code === 200) {
+    ElMessage({ type: 'success', message: '删除成功' })
+    getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1)
+  }
+}
+
+// 表格复选框勾选的时候会触发的事件
+const selectChange = (value: any) => {
+  selectIdArr.value = value
+}
+
+// 批量删除
+const deleteSelectUser = async () => {
+  let idList: any = selectIdArr.value.map((item) => {
+    return item.id
+  })
+  let result: any = await reqSelectUser(idList)
+  if (result.code === 200) {
+    ElMessage({ type: 'success', message: '删除成功' })
+    getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1)
+  }
+}
 </script>
 
 <template>
@@ -223,8 +253,20 @@ const confirmClick = async () => {
     <el-button type="primary" size="default" @click="addUser">
       添加用户
     </el-button>
-    <el-button type="danger" size="default">批量删除</el-button>
-    <el-table style="margin: 10px 0" border :data="userArr">
+    <el-button
+      type="danger"
+      size="default"
+      :disabled="selectIdArr.length <= 0"
+      @click="deleteSelectUser"
+    >
+      批量删除
+    </el-button>
+    <el-table
+      style="margin: 10px 0"
+      border
+      :data="userArr"
+      @selection-change="selectChange"
+    >
       <el-table-column type="selection" align="center"></el-table-column>
       <el-table-column label="#" align="center" type="index"></el-table-column>
       <el-table-column label="id" align="center" prop="id"></el-table-column>
@@ -276,7 +318,17 @@ const confirmClick = async () => {
           >
             编辑
           </el-button>
-          <el-button type="primary" size="small" icon="Delete">删除</el-button>
+          <el-popconfirm
+            :title="`你确定删除${row.username}`"
+            width="260px"
+            @confirm="deleteUser(row.id)"
+          >
+            <template #reference>
+              <el-button type="danger" size="small" icon="Delete">
+                删除
+              </el-button>
+            </template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
