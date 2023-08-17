@@ -27,6 +27,8 @@ let userStore = useUserStore()
 <style lang="scss">
 .box {
   display: flex;
+  align-items: center;
+  height: 110px;
   .avatar {
     width: 100px;
     height: 100px;
@@ -34,11 +36,10 @@ let userStore = useUserStore()
   }
   .footer {
     margin-left: 20px;
-    margin-top: 15px;
     .title {
       font-size: 35px;
-      margin-bottom: 30px;
       font-weight: 900;
+      margin-bottom: 10px;
     }
     .subtitle {
       font-style: italic;
