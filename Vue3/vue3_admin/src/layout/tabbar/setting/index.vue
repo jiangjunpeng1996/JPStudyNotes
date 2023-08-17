@@ -60,6 +60,12 @@ const changeDark = () => {
   let html = document.documentElement
   dark.value ? (html.className = 'dark') : (html.className = '')
 }
+
+const setColor = () => {
+  let html = document.documentElement
+  html.style.setProperty('--el-color-primary', color.value)
+  html.style.setProperty('--el-color-danger', color.value)
+}
 </script>
 
 <script lang="ts">
@@ -89,6 +95,7 @@ export default {
           :predefine="predefineColors"
           size="small"
           v-model="color"
+          @change="setColor"
         />
       </el-form-item>
       <el-form-item label="暗黑模式">
