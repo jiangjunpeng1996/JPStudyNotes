@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive, nextTick } from 'vue'
 import { reqAllRoleList, reqAddOrUpdateRole } from '@/api/acl/role'
 import type { RoleResponseData, Records, RoleData } from '@/api/acl/role/type'
 import useLayoutSettingStore from '@/store/modules/setting'
+import { ElMessage } from 'element-plus';
 let settingStore = useLayoutSettingStore()
 // 当前的页码
 let pageNo = ref<number>(1)
@@ -16,6 +17,12 @@ let keyword = ref<string>('')
 let allRole = ref<Records>([])
 // 控制添加职位与更新已有职位对话框的显示隐藏
 let dialogVisible = ref<boolean>(false)
+// 收集新增职位数据
+let roleParams = reactive<RoleData>({
+  roleName: '',
+})
+// 获取添加职位form组件实例
+let form = ref<any>()
 // 组件挂载完毕
 onMounted(() => {
   // 获取全部职位的请求
@@ -54,11 +61,57 @@ const reset = () => {
 const addRole = () => {
   // 显示对话框组件
   dialogVisible.value = true
+  // 清空数据
+  Object.assign(roleParams, {
+    roleName: '',
+    id: 0,
+  })
+  // 清空上一次表单校验错误信息
+  nextTick(() => {
+    form.value.clearValidate('roleName')
+  })
 }
 // 更新已有职位按钮的回调
 const updateRole = (row: RoleData) => {
   // 显示对话框组件
   dialogVisible.value = true
+  // 存储已有的职位数据
+  Object.assign(roleParams, row)
+  nextTick(() => {
+    form.value.clearValidate('roleName')
+  })
+}
+
+// 自定义校验规则的回调
+const validateRoleName = (rule: any, value: any, callBack: any) => {
+  if (value.trim().length >= 2) {
+    callBack()
+  } else {
+    callBack(new Error('职位名称至少两位'))
+  }
+}
+// 职位名称校验规则
+const rules = {
+  roleName: [{ required: true, trigger: 'blur', validator: validateRoleName }],
+}
+
+// 确定按钮的回调
+const save = async () => {
+  // 表单校验结果，结果通过再发请求
+  await form.value.validate()
+  // 添加职位|更新已有职位的请求
+  let result: any = await reqAddOrUpdateRole(roleParams)
+  if (result.code === 200) {
+    // 提示信息
+    ElMessage({
+      type: 'success',
+      message: roleParams.id ? '更新成功' : '添加成功',
+    })
+    // 关闭对话框
+    dialogVisible.value = false
+    // 再次获取全部职位
+    getHasRole(roleParams.id ? pageNo.value : 1)
+  }
 }
 </script>
 
@@ -138,17 +191,23 @@ const updateRole = (row: RoleData) => {
     />
   </el-card>
   <!-- 添加职位已更新已有的职位对话框组件 -->
-  <el-dialog v-model="dialogVisible" title="添加职位">
-    <el-form>
-      <el-form-item label="职位名称">
-        <el-input placeholder="请你输入职位名称"></el-input>
+  <el-dialog
+    v-model="dialogVisible"
+    :title="roleParams.id ? '更新职位' : '添加职位'"
+  >
+    <el-form :model="roleParams" :rules="rules" ref="form">
+      <el-form-item label="职位名称" prop="roleName">
+        <el-input
+          placeholder="请你输入职位名称"
+          v-model="roleParams.roleName"
+        ></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
       <el-button type="primary" size="default" @click="dialogVisible = false">
         取消
       </el-button>
-      <el-button type="primary" size="default">确定</el-button>
+      <el-button type="primary" size="default" @click="save">确定</el-button>
     </template>
   </el-dialog>
 </template>
