@@ -1,9 +1,19 @@
 <script lang="ts" setup>
 import { ref, onMounted, reactive, nextTick } from 'vue'
-import { reqAllRoleList, reqAddOrUpdateRole } from '@/api/acl/role'
-import type { RoleResponseData, Records, RoleData } from '@/api/acl/role/type'
+import {
+  reqAllRoleList,
+  reqAddOrUpdateRole,
+  reqAllMenuList,
+} from '@/api/acl/role'
+import type {
+  RoleResponseData,
+  Records,
+  RoleData,
+  MenuResponseData,
+  MenuList,
+} from '@/api/acl/role/type'
 import useLayoutSettingStore from '@/store/modules/setting'
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
 let settingStore = useLayoutSettingStore()
 // 当前的页码
 let pageNo = ref<number>(1)
@@ -23,6 +33,10 @@ let roleParams = reactive<RoleData>({
 })
 // 获取添加职位form组件实例
 let form = ref<any>()
+// 控制抽屉显示与隐藏
+let drawer = ref<boolean>(false)
+// 定义数组存储用户权限的数据
+let menuArr = ref<MenuList>([])
 // 组件挂载完毕
 onMounted(() => {
   // 获取全部职位的请求
@@ -113,6 +127,23 @@ const save = async () => {
     getHasRole(roleParams.id ? pageNo.value : 1)
   }
 }
+
+// 分配权限按钮的回调
+const setPermission = async (row: RoleData) => {
+  // 显示抽屉组件
+  drawer.value = true
+  // 收集当前要分配权限的职位的数据
+  Object.assign(roleParams, row)
+  // 根据职位获取权限的数据
+  let result: MenuResponseData = await reqAllMenuList(roleParams.id as number)
+  if (result.code === 200) {
+    menuArr.value = result.data
+  }
+}
+const defaultProps = {
+  children: 'children',
+  label: 'name',
+}
 </script>
 
 <template>
@@ -164,7 +195,12 @@ const save = async () => {
       ></el-table-column>
       <el-table-column align="center" label="操作" width="260px">
         <template #="{ row, $index }">
-          <el-button type="primary" size="small" icon="User">
+          <el-button
+            type="primary"
+            size="small"
+            icon="User"
+            @click="setPermission(row)"
+          >
             分配权限
           </el-button>
           <el-button
@@ -210,6 +246,29 @@ const save = async () => {
       <el-button type="primary" size="default" @click="save">确定</el-button>
     </template>
   </el-dialog>
+  <!-- 抽屉组件：分配职位的菜单权限 -->
+  <el-drawer v-model="drawer">
+    <template #header>
+      <h4>分配菜单与按钮的权限</h4>
+    </template>
+    <template #default>
+      <el-tree
+        ref="tree"
+        :data="menuArr"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+        :default-checked-keys="[2, 3]"
+        :props="defaultProps"
+      />
+    </template>
+    <template #footer>
+      <div style="flex: auto">
+        <el-button @click="drawer = false">取消</el-button>
+        <el-button type="primary">确定</el-button>
+      </div>
+    </template>
+  </el-drawer>
 </template>
 
 <style scoped lang="scss">
