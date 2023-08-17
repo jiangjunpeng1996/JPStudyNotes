@@ -5,6 +5,7 @@ import {
   reqAddOrUpdateRole,
   reqAllMenuList,
   reqSetPermission,
+  reqRemoveRole,
 } from '@/api/acl/role'
 import type {
   RoleResponseData,
@@ -184,6 +185,17 @@ const handler = async () => {
     window.location.reload()
   }
 }
+
+const removeRole = async (id: number) => {
+  let result: any = await reqRemoveRole(id)
+  if (result.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: '删除成功',
+    })
+    getHasRole(allRole.value.length > 1 ? pageNo.value : pageNo.value - 1)
+  }
+}
 </script>
 
 <template>
@@ -251,7 +263,17 @@ const handler = async () => {
           >
             编辑
           </el-button>
-          <el-button type="danger" size="small" icon="Delete">删除</el-button>
+          <el-popconfirm
+            :title="`你确定要删除${row.roleName}?`"
+            width="260px"
+            @confirm="removeRole(row.id)"
+          >
+            <template #reference>
+              <el-button type="danger" size="small" icon="Delete">
+                删除
+              </el-button>
+            </template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
