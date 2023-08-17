@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
-import { reqAllRoleList } from '@/api/acl/role'
-import type { RoleResponseData, Records } from '@/api/acl/role/type'
+import { reqAllRoleList, reqAddOrUpdateRole } from '@/api/acl/role'
+import type { RoleResponseData, Records, RoleData } from '@/api/acl/role/type'
 import useLayoutSettingStore from '@/store/modules/setting'
 let settingStore = useLayoutSettingStore()
 // 当前的页码
@@ -14,6 +14,8 @@ let total = ref<number>(0)
 let keyword = ref<string>('')
 // 存储全部已有的职位
 let allRole = ref<Records>([])
+// 控制添加职位与更新已有职位对话框的显示隐藏
+let dialogVisible = ref<boolean>(false)
 // 组件挂载完毕
 onMounted(() => {
   // 获取全部职位的请求
@@ -48,6 +50,16 @@ const search = () => {
 const reset = () => {
   settingStore.refresh = !settingStore.refresh
 }
+// 添加职位按钮的回调
+const addRole = () => {
+  // 显示对话框组件
+  dialogVisible.value = true
+}
+// 更新已有职位按钮的回调
+const updateRole = (row: RoleData) => {
+  // 显示对话框组件
+  dialogVisible.value = true
+}
 </script>
 
 <template>
@@ -73,7 +85,9 @@ const reset = () => {
     </el-form>
   </el-card>
   <el-card style="margin: 10px 0">
-    <el-button type="primary" size="default" icon="Plus">添加职位</el-button>
+    <el-button type="primary" size="default" icon="Plus" @click="addRole">
+      添加职位
+    </el-button>
     <el-table border style="margin: 10px 0" :data="allRole">
       <el-table-column type="index" align="center" label="#"></el-table-column>
       <el-table-column align="center" label="ID" prop="id"></el-table-column>
@@ -100,7 +114,14 @@ const reset = () => {
           <el-button type="primary" size="small" icon="User">
             分配权限
           </el-button>
-          <el-button type="primary" size="small" icon="Edit">编辑</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="Edit"
+            @click="updateRole(row)"
+          >
+            编辑
+          </el-button>
           <el-button type="danger" size="small" icon="Delete">删除</el-button>
         </template>
       </el-table-column>
@@ -116,6 +137,20 @@ const reset = () => {
       @size-change="sizeChange"
     />
   </el-card>
+  <!-- 添加职位已更新已有的职位对话框组件 -->
+  <el-dialog v-model="dialogVisible" title="添加职位">
+    <el-form>
+      <el-form-item label="职位名称">
+        <el-input placeholder="请你输入职位名称"></el-input>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button type="primary" size="default" @click="dialogVisible = false">
+        取消
+      </el-button>
+      <el-button type="primary" size="default">确定</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">
