@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { onMounted, ref, reactive } from 'vue'
-import { reqAllPermission, reqAddOrUpdateMenu } from '@/api/acl/menu'
+import {
+  reqAllPermission,
+  reqAddOrUpdateMenu,
+  reqRemoveMenu,
+} from '@/api/acl/menu'
 import type {
   PermissionResponseData,
   PermissionList,
@@ -72,6 +76,15 @@ const save = async () => {
     getHasPermission()
   }
 }
+
+// 删除按钮的回调
+const removeMenu = async (id: number) => {
+  let result = await reqRemoveMenu(id)
+  if (result.code === 200) {
+    ElMessage({ type: 'success', message: '删除成功' })
+    getHasPermission()
+  }
+}
 </script>
 
 <template>
@@ -101,9 +114,17 @@ const save = async () => {
         >
           编辑
         </el-button>
-        <el-button type="danger" size="small" :disabled="row.level === 1">
-          删除
-        </el-button>
+        <el-popconfirm
+          :title="`你确定要删除${row.name}?`"
+          width="260px"
+          @confirm="removeMenu(row.id)"
+        >
+          <template #reference>
+            <el-button type="danger" size="small" :disabled="row.level === 1">
+              删除
+            </el-button>
+          </template>
+        </el-popconfirm>
       </template>
     </el-table-column>
   </el-table>
