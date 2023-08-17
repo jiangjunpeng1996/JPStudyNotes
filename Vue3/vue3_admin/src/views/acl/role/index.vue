@@ -4,6 +4,7 @@ import {
   reqAllRoleList,
   reqAddOrUpdateRole,
   reqAllMenuList,
+  reqSetPermission,
 } from '@/api/acl/role'
 import type {
   RoleResponseData,
@@ -37,6 +38,10 @@ let form = ref<any>()
 let drawer = ref<boolean>(false)
 // 定义数组存储用户权限的数据
 let menuArr = ref<MenuList>([])
+// 定义数组存储已勾选的id
+let selectArr = ref<number[]>([])
+// 获取tree树形控件的组件实例
+let tree = ref()
 // 组件挂载完毕
 onMounted(() => {
   // 获取全部职位的请求
@@ -138,11 +143,46 @@ const setPermission = async (row: RoleData) => {
   let result: MenuResponseData = await reqAllMenuList(roleParams.id as number)
   if (result.code === 200) {
     menuArr.value = result.data
+    selectArr.value = filterSelectArr(menuArr.value, [])
   }
 }
 const defaultProps = {
   children: 'children',
   label: 'name',
+}
+
+const filterSelectArr = (allData: any, initArr: any) => {
+  allData.forEach((item: any) => {
+    if (item.select && item.level === 4) {
+      initArr.push(item.id)
+    }
+    if (item.children && item.children.length > 0) {
+      filterSelectArr(item.children, initArr)
+    }
+  })
+  return initArr
+}
+
+// 抽屉确定按钮的回调
+const handler = async () => {
+  // 职位的ID
+  const roleId = roleParams.id as number
+  // 选中节点的ID
+  let arr = tree.value.getCheckedKeys()
+  // 半选的ID
+  let arr1 = tree.value.getHalfCheckedKeys()
+  let permissionId = arr.concat(arr1)
+  let result: any = await reqSetPermission(roleId, permissionId)
+  if (result.code === 200) {
+    // 关闭抽屉组件
+    drawer.value = false
+    ElMessage({
+      type: 'success',
+      message: '分配权限成功',
+    })
+    // 页面刷新
+    window.location.reload()
+  }
 }
 </script>
 
@@ -258,14 +298,14 @@ const defaultProps = {
         show-checkbox
         node-key="id"
         default-expand-all
-        :default-checked-keys="[2, 3]"
+        :default-checked-keys="selectArr"
         :props="defaultProps"
       />
     </template>
     <template #footer>
       <div style="flex: auto">
         <el-button @click="drawer = false">取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="handler">确定</el-button>
       </div>
     </template>
   </el-drawer>
