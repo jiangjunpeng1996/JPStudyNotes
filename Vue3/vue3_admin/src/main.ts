@@ -28,6 +28,9 @@ import pinia from './store'
 // 引入路由鉴权文件
 import './permission'
 
+// 暗黑模式需要的样式
+import 'element-plus/theme-chalk/dark/css-vars.css'
+
 // 获取应用实例对象
 const app = createApp(App)
 // 安装element-plus插件
