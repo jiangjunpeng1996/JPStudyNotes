@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 // 引入顶部的子组件
 import Top from './components/top/index.vue'
+// 引入左侧3个子组件
+import Tourist from './components/tourist/index.vue'
+import Sex from './components/sex/index.vue'
+import Age from './components/age/index.vue'
 import { ref, onMounted } from 'vue'
 // 获取数据大屏展示内容盒子的DOM元素
 let screen = ref()
@@ -23,11 +27,16 @@ window.onresize = () => {
   <div class="container">
     <!-- 数据大屏展示内容区域 -->
     <div class="screen" ref="screen">
+      <!-- 数据大屏顶部 -->
       <div class="top">
         <Top />
       </div>
       <div class="bottom">
-        <div class="left">左</div>
+        <div class="left">
+          <Tourist class="tourist" />
+          <Sex class="sex" />
+          <Age class="age" />
+        </div>
         <div class="center">中</div>
         <div class="right">右</div>
       </div>
@@ -59,6 +68,18 @@ window.onresize = () => {
       }
       .left {
         flex: 1;
+        height: 1040px;
+        display: flex;
+        flex-direction: column;
+        .tourist {
+          flex: 1.5;
+        }
+        .sex {
+          flex: 1;
+        }
+        .age {
+          flex: 1;
+        }
       }
       .center {
         flex: 2;
