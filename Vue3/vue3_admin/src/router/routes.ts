@@ -121,6 +121,7 @@ export const asyncRoute = [
         meta: {
           title: '品牌管理',
           icon: 'StarFilled',
+          hidden: false,
         },
       },
       {
@@ -130,6 +131,7 @@ export const asyncRoute = [
         meta: {
           title: '属性管理',
           icon: 'ChromeFilled',
+          hidden: false,
         },
       },
       {
@@ -139,6 +141,7 @@ export const asyncRoute = [
         meta: {
           title: 'SPU管理',
           icon: 'MessageBox',
+          hidden: false,
         },
       },
       {
@@ -148,6 +151,7 @@ export const asyncRoute = [
         meta: {
           title: 'SKU管理',
           icon: 'HelpFilled',
+          hidden: false,
         },
       },
     ],
