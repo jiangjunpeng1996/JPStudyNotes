@@ -41,7 +41,8 @@ router.beforeEach(async (to: any, from: any, next: any) => {
           // 获取用户信息
           await userStore.userInfo()
           // 放行
-          next()
+          // 注意：刷新的时候是异步路由，有可能获取到用户信息、异步路由还没有加载完毕，出现空白的效果
+          next({ ...to })
         } catch (error) {
           // token过期：获取不到用户信息了
           // 用户手动修改本地存储token

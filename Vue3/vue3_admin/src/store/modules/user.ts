@@ -12,6 +12,8 @@ import type { UserState } from './types/type'
 import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
 // 引入路由（常量路由，异步路由，任意路由）
 import { constantRoute, asyncRoute, anyRoute } from '@/router/routes'
+// 引入深拷贝方法
+import cloneDeep from 'lodash/cloneDeep'
 import router from '@/router'
 // 用于过滤当前用户需要展示的异步路由
 const filterAsyncRoute = (asyncRoute: any, routes: any) => {
@@ -64,7 +66,10 @@ const useUserStore = defineStore('User', {
         this.username = result.data.name
         this.avatar = result.data.avatar
         // 计算当前用户需要展示的异步路由
-        const userAsyncRoute = filterAsyncRoute(asyncRoute, result.data.routes)
+        const userAsyncRoute = filterAsyncRoute(
+          cloneDeep(asyncRoute),
+          result.data.routes,
+        )
         // 菜单的数据
         this.menuRoutes = [...constantRoute, ...userAsyncRoute, ...anyRoute]
         // 目前路由器管理的只有常量路由，用户计算完毕的异步路由，任意路由需要动态添加
