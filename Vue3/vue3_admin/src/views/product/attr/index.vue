@@ -189,6 +189,7 @@ onBeforeUnmount(() => {
           icon="Plus"
           :disabled="!categoryStore.c3Id"
           @click="addAttr"
+          v-has="`btn.Attr.add`"
         >
           添加属性
         </el-button>
@@ -223,6 +224,7 @@ onBeforeUnmount(() => {
                 size="small"
                 icon="Edit"
                 @click="updateAttr(row)"
+                v-has="`btn.Attr.update`"
               ></el-button>
               <el-popconfirm
                 :title="`你确定删除${row.attrName}这个属性吗?`"
@@ -234,6 +236,7 @@ onBeforeUnmount(() => {
                     type="danger"
                     size="small"
                     icon="Delete"
+                    v-has="`btn.Attr.remove`"
                   ></el-button>
                 </template>
               </el-popconfirm>

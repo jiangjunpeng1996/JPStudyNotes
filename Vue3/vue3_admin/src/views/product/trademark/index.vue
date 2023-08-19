@@ -225,6 +225,7 @@ const removeTradeMark = async (id: number) => {
         size="default"
         icon="Plus"
         @click="addTrademark"
+        v-has="`btn.Trademark.add`"
       >
         添加品牌
       </el-button>
@@ -261,6 +262,7 @@ const removeTradeMark = async (id: number) => {
               size="small"
               icon="Edit"
               @click="updateTrademark(row)"
+              v-has="`btn.Trademark.update`"
             ></el-button>
             <el-popconfirm
               :title="`您确定删除${row.tmName}这个品牌吗？`"
@@ -269,7 +271,12 @@ const removeTradeMark = async (id: number) => {
               @confirm="removeTradeMark(row.id)"
             >
               <template #reference>
-                <el-button type="danger" size="small" icon="Delete"></el-button>
+                <el-button
+                  type="danger"
+                  size="small"
+                  icon="Delete"
+                  v-has="`btn.Trademark.remove`"
+                ></el-button>
               </template>
             </el-popconfirm>
           </template>

@@ -33,6 +33,10 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 
 // 获取应用实例对象
 const app = createApp(App)
+// 引入自定义指令文件
+import { isHasButton } from '@/directive/has'
+isHasButton(app)
+
 // 安装element-plus插件
 app.use(ElementPlus, {
   locale: zhCn, // element-plus国际化配置
