@@ -1,6 +1,6 @@
 // SKU管理模块相关的接口
 import request from '@/utils/request'
-import { SkuResponseData } from './type'
+import { SkuResponseData, SkuInfoData } from './type'
 
 enum API {
   // 获取已有的SKU商品的数据

@@ -18,7 +18,7 @@ export default {
 </script>
 
 <template>
-  <template v-for="(item, index) in menuList" :key="item.path">
+  <template v-for="item in menuList" :key="item.path">
     <!-- 没有子路由 -->
     <template v-if="!item.children">
       <el-menu-item

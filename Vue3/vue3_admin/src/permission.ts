@@ -1,4 +1,3 @@
-import { path } from 'path';
 // 路由鉴权：项目当中路由能不能被访问权限的设置（某一个路由什么条件下可以访问、什么条件下不能访问）
 import router from '@/router'
 import setting from './setting'

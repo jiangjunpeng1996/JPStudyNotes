@@ -330,7 +330,7 @@ defineExpose({ initHasSpuData, initAddSpu })
           prop="saleAttrName"
         ></el-table-column>
         <el-table-column label="销售属性值">
-          <template #="{ row, $index }">
+          <template #="{ row }">
             <el-tag
               v-for="(item, index) in row.spuSaleAttrValueList"
               :key="row.id"

@@ -152,10 +152,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 }
 
 // 图片上传成功的钩子
-const handleAvatarSuccess: UploadProps['onSuccess'] = (
-  response,
-  uploadFile,
-) => {
+const handleAvatarSuccess: UploadProps['onSuccess'] = (response) => {
   // response: 即为当前这次上传图片post请求服务器返回的数据
   trademarkParams.logoUrl = response.data
   // 图片上传成功，清除掉对应图片的错误提示信息
@@ -247,7 +244,7 @@ const removeTradeMark = async (id: number) => {
         <!-- table-column：默认展示数据用div -->
         <el-table-column label="品牌名称" prop="tmName"></el-table-column>
         <el-table-column label="品牌LOGO">
-          <template #="{ row, $index }">
+          <template #="{ row }">
             <img
               :src="row.logoUrl"
               alt=""
@@ -256,7 +253,7 @@ const removeTradeMark = async (id: number) => {
           </template>
         </el-table-column>
         <el-table-column label="品牌操作">
-          <template #="{ row, $index }">
+          <template #="{ row }">
             <el-button
               type="primary"
               size="small"

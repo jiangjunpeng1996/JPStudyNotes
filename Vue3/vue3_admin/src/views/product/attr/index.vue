@@ -13,8 +13,6 @@ let attrArr = ref<Attr[]>([])
 // 定义card组件内容切换变量
 // scene: 0 显示table 1 展示添加与修改结构
 let scene = ref<number>(0)
-// 定义一个响应式数据，用于控制编辑模式与查看模式的切换
-let flag = ref<boolean>(true)
 // 准备一个数组，将来存储对应的组件实例el-input
 let inputArr = ref<any>([])
 // 收集新增的属性的数据
